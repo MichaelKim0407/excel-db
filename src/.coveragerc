@@ -1,0 +1,6 @@
+[run]
+source = excel_db
+
+[report]
+show_missing = True
+skip_covered = True

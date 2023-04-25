@@ -1,1 +1,9 @@
 .idea
+
+__pycache__
+.pytest_cache
+.coverage
+*.egg-info
+/src/dist
+/src/README.md
+/src/LICENSE

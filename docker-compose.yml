@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  py3.11:
+    build:
+      dockerfile: dockerfiles/dev.dockerfile
+      context: .
+      args:
+        PYTHON_VERSION: "3.11"
+    volumes:
+      - ./src:/src
+      - ./README.md:/src/README.md
+      - ./LICENSE:/src/LICENSE
+
+  py3.10:
+    build:
+      dockerfile: dockerfiles/dev.dockerfile
+      context: .
+      args:
+        PYTHON_VERSION: "3.10"
+
+  py3.9:
+    build:
+      dockerfile: dockerfiles/dev.dockerfile
+      context: .
+      args:
+        PYTHON_VERSION: "3.9"
+
+  py3.8:
+    build:
+      dockerfile: dockerfiles/dev.dockerfile
+      context: .
+      args:
+        PYTHON_VERSION: "3.8"
+
+  py3.7:
+    build:
+      dockerfile: dockerfiles/dev.dockerfile
+      context: .
+      args:
+        PYTHON_VERSION: "3.7"
