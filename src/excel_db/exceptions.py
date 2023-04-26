@@ -1,0 +1,2 @@
+class ColumnNotFound(Exception):
+    pass
