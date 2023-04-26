@@ -45,7 +45,7 @@ class ExcelTableDefinition(BasePropertyDescriptor['ExcelDB']):
 
     def initialize(self, db: 'ExcelDB', ws: Worksheet):
         self._initialize_title_row(db, ws)
-        self._initialize_method(db, ws)
+        self._initialize_method(db, ws)  # noqa: pycharm
 
     def initializer(self, f_initialize):
         self._f_initialize = f_initialize
@@ -57,6 +57,7 @@ class ExcelTableDefinition(BasePropertyDescriptor['ExcelDB']):
         else:
             ws = db.wb.create_sheet(self.name)
             self.initialize(db, ws)
+            return ws
 
     def _get(self, db: 'ExcelDB') -> 'ExcelTable':
         if self.attr not in db.__dict__:
@@ -72,7 +73,9 @@ class ExcelTableDefinition(BasePropertyDescriptor['ExcelDB']):
         copy.title = self.name
         return copy
 
-    def _set(self, db: 'ExcelDB', ws: Worksheet):
+    def _set(self, db: 'ExcelDB', ws: typing.Union[Worksheet, 'ExcelTable']):
+        if isinstance(ws, ExcelTable):
+            ws = ws.ws
         copy = self._set_method(db, ws)
         db.__dict__[self._cache_name] = copy
 
