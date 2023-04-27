@@ -119,6 +119,9 @@ class ExcelTable:
     def get_row_num(self, idx: int) -> int:
         return self.table.title_row + idx + 1
 
+    def get_idx(self, row_num: int) -> int:
+        return row_num - self.table.title_row - 1
+
     def _get_range(
             self,
             s: slice = None,
@@ -173,6 +176,11 @@ class ExcelTable:
 
     def cell(self, row_num, col_num) -> Cell:
         return self.ws.cell(row_num, col_num)
+
+    def new(self) -> 'ExcelModel':
+        self.ws.append([])
+        row_num = self.ws._current_row  # noqa: pycharm
+        return self[self.get_idx(row_num)]
 
 
 from .db import ExcelDB  # noqa: E402
