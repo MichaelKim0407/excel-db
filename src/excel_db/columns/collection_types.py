@@ -1,3 +1,4 @@
+import json
 import typing
 
 from returns import returns
@@ -41,3 +42,14 @@ class ArrayColumn(BaseTypedColumn):
             self._inner_from_python(item)
             for item in value
         )
+
+
+class JsonColumn(BaseTypedColumn):
+    def _convert_to_python(self, value):
+        if not isinstance(value, str):
+            return value
+
+        return json.loads(value)
+
+    def _convert_from_python(self, value):
+        return json.dumps(value)
