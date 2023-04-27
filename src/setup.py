@@ -5,6 +5,10 @@ from setuptools import setup, find_packages
 from excel_db import __version__
 
 project_dir = Path(__file__).parent
+try:
+    long_description = (project_dir / 'README.md').read_text()
+except FileNotFoundError:
+    long_description = ''
 
 requirements = (
     'openpyxl',
@@ -32,7 +36,7 @@ setup(
     version=__version__,
     packages=find_packages(exclude=['tests', 'tests.*']),
     description='Model-style Excel File Accessor',
-    long_description=(project_dir / 'README.md').read_text(),
+    long_description=long_description,
     long_description_content_type='text/markdown',
 
     url='https://github.com/MichaelKim0407/excel-db',
