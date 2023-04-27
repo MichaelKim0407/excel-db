@@ -1,6 +1,7 @@
 import typing
 from functools import cached_property
 
+from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 
 from .exceptions import ColumnNotFound
@@ -115,7 +116,7 @@ class ExcelTable:
     def model(self) -> typing.Type['ExcelModel']:
         return self.table.model
 
-    def _get_row_num(self, idx: int) -> int:
+    def get_row_num(self, idx: int) -> int:
         return self.table.title_row + idx + 1
 
     def _get_range(
@@ -139,7 +140,7 @@ class ExcelTable:
                 self[i]
                 for i in self._get_range(idx)
             ]
-        return self.model(self, idx, self._get_row_num(idx))
+        return self.model(self, idx, self.get_row_num(idx))
 
     def __len__(self) -> int:
         return len(self._get_range())
@@ -169,6 +170,9 @@ class ExcelTable:
 
     def __getattr__(self, attr: str) -> 'ExcelColumn':
         return self._get_column(attr)
+
+    def cell(self, row_num, col_num) -> Cell:
+        return self.ws.cell(row_num, col_num)
 
 
 from .db import ExcelDB  # noqa: E402

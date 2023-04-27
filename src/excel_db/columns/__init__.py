@@ -115,6 +115,12 @@ class ExcelColumn:
 
         self.column_def.__delete__(self.table[idx])
 
+    def cell(self, row_num: int) -> Cell:
+        return self.table.cell(row_num, self.col_num)
+
+    def cell0(self, idx: int) -> Cell:
+        return self.cell(self.table.get_row_num(idx))
+
 
 from ..tables import ExcelTable  # noqa: E402
 from ..models import ExcelModel  # noqa: E402

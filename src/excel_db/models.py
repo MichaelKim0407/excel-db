@@ -1,5 +1,6 @@
 import typing
 
+from openpyxl.cell import Cell
 from returns import returns
 
 
@@ -34,6 +35,15 @@ class ExcelModel:
     def as_dict(self) -> dict[str, typing.Any]:
         for column in self.columns:
             yield column.name, column.__get__(self)
+
+    def cell(self, col_num: int) -> Cell:
+        return self.table.cell(self.row_num, col_num)
+
+    def cell0(self, col_idx: int) -> Cell:
+        return self.cell(col_idx + 1)
+
+    def cella(self, attr: str) -> Cell:
+        return self.cell(getattr(self.table, attr).col_num)
 
 
 from .columns import Column  # noqa: E402
