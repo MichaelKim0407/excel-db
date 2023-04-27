@@ -8,6 +8,7 @@ project_dir = Path(__file__).parent
 
 requirements = (
     'openpyxl',
+    'returns-decorator',
 )
 
 requirements_dev_lint = (

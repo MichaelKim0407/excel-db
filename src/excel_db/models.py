@@ -1,3 +1,8 @@
+import typing
+
+from returns import returns
+
+
 class ExcelModel:
     columns: list['Column']
 
@@ -24,6 +29,11 @@ class ExcelModel:
                 and self.idx == other.idx
                 and self.row_num == other.row_num
         )
+
+    @returns(dict)
+    def as_dict(self) -> dict[str, typing.Any]:
+        for column in self.columns:
+            yield column.name, column.__get__(self)
 
 
 from .columns import Column  # noqa: E402

@@ -118,8 +118,35 @@ class ExcelTable:
     def _get_row_num(self, idx: int) -> int:
         return self.table.title_row + idx + 1
 
-    def __getitem__(self, idx: int) -> 'ExcelModel':
+    def _get_range(
+            self,
+            s: slice = None,
+            *,
+            start=None,
+            stop=None,
+            step=None,
+    ) -> list[int]:
+        if s is not None:
+            start = s.start
+            stop = s.stop
+            step = s.step
+
+        return list(range(self.ws.max_row - self.table.title_row))[start:stop:step]
+
+    def __getitem__(self, idx: int | slice) -> typing.Union['ExcelModel', list['ExcelModel']]:
+        if isinstance(idx, slice):
+            return [
+                self[i]
+                for i in self._get_range(idx)
+            ]
         return self.model(self, idx, self._get_row_num(idx))
+
+    def __len__(self) -> int:
+        return len(self._get_range())
+
+    def __iter__(self) -> typing.Iterator['ExcelModel']:
+        for i in self._get_range():
+            yield self[i]
 
     def _get_column_def(self, attr: str) -> 'Column':
         for column in self.model.columns:
