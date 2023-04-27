@@ -45,6 +45,16 @@ class ExcelColumn:
         self.column_def = column_def
         self.col_num = col_num
 
+    def __eq__(self, other: 'ExcelColumn') -> bool:
+        if other is None or not isinstance(other, ExcelColumn):
+            return False
+
+        return (
+                self.table == other.table
+                and self.column_def == other.column_def
+                and self.col_num == other.col_num
+        )
+
     def __getitem__(self, idx: int):
         return self.column_def.__get__(self.table[idx])
 

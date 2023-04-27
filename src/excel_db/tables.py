@@ -101,6 +101,16 @@ class ExcelTable:
 
         self._columns_cache = {}
 
+    def __eq__(self, other: 'ExcelTable') -> bool:
+        if other is None or not isinstance(other, ExcelTable):
+            return False
+
+        return (
+                self.db == other.db
+                and self.table == other.table
+                and self.ws == other.ws
+        )
+
     @property
     def model(self) -> typing.Type['ExcelModel']:
         return self.table.model
