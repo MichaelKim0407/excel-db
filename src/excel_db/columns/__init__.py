@@ -2,7 +2,7 @@ import typing
 
 from openpyxl.cell import Cell
 
-from .utils.descriptors import BasePropertyDescriptor
+from ..utils.descriptors import BasePropertyDescriptor
 
 
 class Column(BasePropertyDescriptor['ExcelModel']):
@@ -17,14 +17,43 @@ class Column(BasePropertyDescriptor['ExcelModel']):
     def _get_cell(self, row: 'ExcelModel') -> Cell:
         return row.table.ws.cell(row.row_num, self._get_col_num(row))
 
+    def _to_python(self, value):
+        return value
+
     def _get_default(self, row: 'ExcelModel', cell: Cell):
-        return cell.value
+        return self._to_python(cell.value)
+
+    _f_handle_error = None
+
+    def _handle_error_default(self, row: 'ExcelModel', cell: Cell, ex: Exception):
+        raise
+
+    @property
+    def _handle_error_method(self):
+        if self._f_handle_error is None:
+            return self._handle_error_default
+        else:
+            return self._f_handle_error
+
+    def _handle_error(self, row: 'ExcelModel', cell: Cell, ex: Exception):
+        return self._handle_error_method(row, cell, ex)  # noqa: pycharm
+
+    def error_handler(self, f_handle_error):
+        self._f_handle_error = f_handle_error
+        return self
 
     def _get(self, row: 'ExcelModel'):
-        return self._get_method(row, self._get_cell(row))
+        cell = self._get_cell(row)
+        try:
+            return self._get_method(row, cell)
+        except Exception as ex:
+            return self._handle_error(row, cell, ex)
+
+    def _from_python(self, value):
+        return value
 
     def _set_default(self, row: 'ExcelModel', value, cell: Cell):
-        cell.value = value
+        cell.value = self._from_python(value)
 
     def _set(self, row: 'ExcelModel', value):
         self._set_method(row, value, self._get_cell(row))
@@ -87,5 +116,5 @@ class ExcelColumn:
         self.column_def.__delete__(self.table[idx])
 
 
-from .tables import ExcelTable  # noqa: E402
-from .models import ExcelModel  # noqa: E402
+from ..tables import ExcelTable  # noqa: E402
+from ..models import ExcelModel  # noqa: E402

@@ -37,3 +37,19 @@ def tmp_excel_file(
         ws.append(row)
     wb.save(path)
     return path
+
+
+@pytest.fixture()
+def lazy_init_excel(tmp_path):
+    def func(sheet_name, col_name, *data):
+        path = str(tmp_path / 'db.xlsx')
+        wb = Workbook()
+        ws = wb.active
+        ws.title = sheet_name
+        ws.append([col_name])
+        for item in data:
+            ws.append([item])
+        wb.save(path)
+        return path
+
+    return func
