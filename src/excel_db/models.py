@@ -3,8 +3,16 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
+from .utils.subclassing import SubclassInjectMeta
 
-class ExcelModel:
+
+class ExcelModelMeta(SubclassInjectMeta):
+    @staticmethod
+    def vars() -> typing.Mapping[str, typing.Any]:
+        return {'columns': []}
+
+
+class ExcelModel(metaclass=ExcelModelMeta):
     columns: list['TColumnDef']
 
     @classmethod

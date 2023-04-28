@@ -28,8 +28,6 @@ class ExcelTableDefinition(
         self.table_class: typing.Type['TTable'] = table_class
 
     def _add_to_class(self):
-        if not hasattr(self.obj_type, 'tables'):
-            self.obj_type.tables = []
         self.obj_type.tables.append(self)
 
     _f_initialize = None

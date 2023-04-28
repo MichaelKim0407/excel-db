@@ -5,8 +5,16 @@ from functools import cached_property
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 
+from .utils.subclassing import SubclassInjectMeta
 
-class ExcelDB:
+
+class ExcelDBMeta(SubclassInjectMeta):
+    @staticmethod
+    def vars() -> typing.Mapping[str, typing.Any]:
+        return {'tables': []}
+
+
+class ExcelDB(metaclass=ExcelDBMeta):
     tables: list['TTableDef']
 
     MODE_OPEN = 'o'  # open an existing file; FileNotFoundError

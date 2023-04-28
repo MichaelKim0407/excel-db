@@ -10,8 +10,6 @@ class Column(BasePropertyDescriptor[ExcelModel]):
     cache: bool = True
 
     def _add_to_class(self):
-        if not hasattr(self.obj_type, 'columns'):
-            self.obj_type.columns = []
         self.obj_type.columns.append(self)
 
     def _get_col_num(self, row: ExcelModel) -> int:
