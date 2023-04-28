@@ -36,6 +36,18 @@ class ExcelModel:
         for column in self.columns:
             yield column.name, column.__get__(self)
 
+    def set_dict(
+            self,
+            mapping: typing.Mapping[str, typing.Any] = None,
+            /,
+            **kwargs,
+    ):
+        if mapping is not None:
+            for k, v in mapping.items():
+                setattr(self, k, v)
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
     def cell(self, col_num: int) -> Cell:
         return self.table.cell(self.row_num, col_num)
 
