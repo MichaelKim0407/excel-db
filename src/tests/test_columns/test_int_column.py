@@ -12,44 +12,34 @@ def excel(lazy_init_excel):
 
 class User(ExcelModel):
     id = IntColumn()
+    id2 = IntColumn(name='id', float_strict=False)
 
 
 class MyDB(ExcelDB):
     users = User.as_table()
 
 
-class TestIntColumn:
-    @pytest.fixture()
-    def db(self, excel):
-        return MyDB(excel)
-
-    def test_get(self, db):
-        assert db.users.id[:4] == [1, 2, 3, 4]
-
-    def test_get_error(self, db):
-        with pytest.raises(ValueError):
-            _ = db.users[4].id
-        with pytest.raises(ValueError):
-            _ = db.users.id[5]
-
-    def test_set(self, db):
-        db.users.id[4:] = (5.0, '6')
-        assert db.wb['users'].cell(6, 1).value == 5
-        assert db.wb['users'].cell(7, 1).value == 6
+@pytest.fixture()
+def db(excel):
+    return MyDB(excel)
 
 
-class User2(ExcelModel):
-    id = IntColumn(float_strict=False)
+def test_get(db):
+    assert db.users.id[:4] == [1, 2, 3, 4]
 
 
-class MyDB2(ExcelDB):
-    users = User2.as_table()
+def test_get_error(db):
+    with pytest.raises(ValueError):
+        _ = db.users[4].id
+    with pytest.raises(ValueError):
+        _ = db.users.id[5]
 
 
-class TestNonStrictFloat:
-    @pytest.fixture()
-    def db(self, excel):
-        return MyDB2(excel)
+def test_set(db):
+    db.users.id[4:] = (5.0, '6')
+    assert db.wb['users'].cell(6, 1).value == 5
+    assert db.wb['users'].cell(7, 1).value == 6
 
-    def test(self, db):
-        assert db.users.id[4] == 5
+
+def test_non_strict_float(db):
+    assert db.users.id2[4] == 5
