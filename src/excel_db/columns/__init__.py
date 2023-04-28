@@ -23,6 +23,18 @@ class Column(BasePropertyDescriptor['ExcelModel']):
     def _get_default(self, row: 'ExcelModel', cell: Cell):
         return self._to_python(cell.value)
 
+    validators = ()
+
+    def _validate(self, row: 'ExcelModel', value, cell: Cell):
+        for validator in self.validators:
+            validator(row, value, cell)
+
+    def validator(self, f_validate):
+        if isinstance(self.validators, tuple):
+            self.validators = list(self.validators)
+        self.validators.append(f_validate)
+        return self
+
     _f_handle_error = None
 
     def _handle_error_default(self, row: 'ExcelModel', cell: Cell, ex: Exception):
@@ -45,7 +57,9 @@ class Column(BasePropertyDescriptor['ExcelModel']):
     def _get(self, row: 'ExcelModel'):
         cell = self._get_cell(row)
         try:
-            return self._get_method(row, cell)
+            value = self._get_method(row, cell)
+            self._validate(row, value, cell)
+            return value
         except Exception as ex:
             return self._handle_error(row, cell, ex)
 
@@ -56,7 +70,9 @@ class Column(BasePropertyDescriptor['ExcelModel']):
         cell.value = self._from_python(value)
 
     def _set(self, row: 'ExcelModel', value):
-        self._set_method(row, value, self._get_cell(row))
+        cell = self._get_cell(row)
+        self._validate(row, value, cell)
+        self._set_method(row, value, cell)
 
     def _delete_default(self, row: 'ExcelModel', cell: Cell):
         cell.value = None
