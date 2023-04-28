@@ -29,6 +29,8 @@ class ExcelModel:
         self.idx = idx
         self.row_num = row_num
 
+        self.values_cache = {}
+
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelModel):
             return False

@@ -1,5 +1,4 @@
 import typing
-from functools import cached_property
 
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -32,10 +31,6 @@ class ExcelTableDefinition(
         if not hasattr(self.obj_type, 'tables'):
             self.obj_type.tables = []
         self.obj_type.tables.append(self)
-
-    @cached_property
-    def _cache_name(self) -> str:
-        return f'_ws_{self.attr}'
 
     _f_initialize = None
 
@@ -70,10 +65,10 @@ class ExcelTableDefinition(
             return ws
 
     def _get(self, db: ExcelDB) -> 'TTable':
-        if self.attr not in db.__dict__:
+        if self.attr not in db.ws_cache:
             ws = self._get_method(db)
-            db.__dict__[self._cache_name] = ws
-        ws = db.__dict__[self._cache_name]
+            db.ws_cache[self.attr] = ws
+        ws = db.ws_cache[self.attr]
         return self.table_class(db, self, ws)
 
     def _set_default(self, db: ExcelDB, ws: Worksheet) -> Worksheet:
@@ -88,14 +83,14 @@ class ExcelTableDefinition(
         if isinstance(ws, ExcelTable):
             ws = ws.ws
         copy = self._set_method(db, ws)
-        db.__dict__[self._cache_name] = copy
+        db.ws_cache[self.attr] = copy
 
     def _delete_default(self, db: ExcelDB):
         del db.wb[self.name]
 
     def _delete(self, db: ExcelDB):
         if self.attr in db.__dict__:
-            del db.__dict__[self._cache_name]
+            del db.ws_cache[self.attr]
         self._delete_method(db)
 
 

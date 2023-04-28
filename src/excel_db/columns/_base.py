@@ -1,5 +1,4 @@
 import typing
-from functools import cached_property
 
 from openpyxl.cell import Cell
 
@@ -14,10 +13,6 @@ class Column(BasePropertyDescriptor[ExcelModel]):
         if not hasattr(self.obj_type, 'columns'):
             self.obj_type.columns = []
         self.obj_type.columns.append(self)
-
-    @cached_property
-    def _cache_name(self) -> str:
-        return f'_v_{self.attr}'
 
     def _get_col_num(self, row: ExcelModel) -> int:
         return getattr(row.table, self.attr).col_num
@@ -73,10 +68,10 @@ class Column(BasePropertyDescriptor[ExcelModel]):
 
     def _get(self, row: ExcelModel):
         if self.cache:
-            if self._cache_name not in row.__dict__:
+            if self.attr not in row.values_cache:
                 value = self._get_nocache(row)
-                row.__dict__[self._cache_name] = value
-            return row.__dict__[self._cache_name]
+                row.values_cache[self.attr] = value
+            return row.values_cache[self.attr]
         else:
             return self._get_nocache(row)
 
@@ -91,7 +86,7 @@ class Column(BasePropertyDescriptor[ExcelModel]):
         self._validate(row, value, cell)
         self._set_method(row, value, cell)
         if self.cache:
-            row.__dict__[self._cache_name] = value
+            row.values_cache[self.attr] = value
 
     def _delete_default(self, row: ExcelModel, cell: Cell):
         cell.value = None
@@ -99,8 +94,8 @@ class Column(BasePropertyDescriptor[ExcelModel]):
     def _delete(self, row: ExcelModel):
         self._delete_method(row, self._get_cell(row))
         if self.cache:
-            if self._cache_name in row.__dict__:
-                del row.__dict__[self._cache_name]
+            if self.attr in row.values_cache:
+                del row.values_cache[self.attr]
 
 
 TColumnDef = typing.TypeVar('TColumnDef', bound=Column)

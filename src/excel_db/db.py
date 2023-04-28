@@ -24,6 +24,8 @@ class ExcelDB:
         self.filename = filename
         self.mode = mode
 
+        self.ws_cache = {}
+
     @cached_property
     def wb(self) -> Workbook:
         if os.path.exists(self.filename):
