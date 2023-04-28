@@ -14,10 +14,15 @@ class ExcelTableDefinition(BasePropertyDescriptor['ExcelDB']):
     def __init__(
             self,
             model: typing.Type['ExcelModel'],
+            *,
+            table_class: typing.Type['ExcelTable'] = None,
             **kwargs,
     ):
         super().__init__(**kwargs)
         self.model = model
+        if table_class is None:
+            table_class = ExcelTable
+        self.table_class = table_class
 
     def _add_to_class(self):
         if not hasattr(self.obj_type, 'tables'):
@@ -65,7 +70,7 @@ class ExcelTableDefinition(BasePropertyDescriptor['ExcelDB']):
             ws = self._get_method(db)
             db.__dict__[self._cache_name] = ws
         ws = db.__dict__[self._cache_name]
-        return ExcelTable(db, self, ws)
+        return self.table_class(db, self, ws)
 
     def _set_default(self, db: 'ExcelDB', ws: Worksheet) -> Worksheet:
         if self.name in db.wb:

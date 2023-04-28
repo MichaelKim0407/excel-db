@@ -8,8 +8,15 @@ class ExcelModel:
     columns: list['Column']
 
     @classmethod
-    def as_table(cls, **kwargs) -> 'ExcelTableDefinition':
-        return ExcelTableDefinition(cls, **kwargs)
+    def as_table(
+            cls,
+            *,
+            table_def_class: typing.Type['ExcelTableDefinition'] = None,
+            **kwargs,
+    ) -> 'ExcelTableDefinition':
+        if table_def_class is None:
+            table_def_class = ExcelTableDefinition
+        return table_def_class(cls, **kwargs)
 
     def __init__(
             self,
