@@ -38,6 +38,12 @@ class ExcelModel:
                 and self.row_num == other.row_num
         )
 
+    def __bool__(self) -> bool:
+        for cell in self.cells:
+            if cell.value is not None:
+                return True
+        return False
+
     @returns(dict)
     def as_dict(self) -> dict[str, typing.Any]:
         for column in self.columns:
