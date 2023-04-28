@@ -3,17 +3,11 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
-from .utils.subclassing import SubclassInjectMeta
+from .utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelModelMeta(SubclassInjectMeta):
-    @staticmethod
-    def vars() -> typing.Mapping[str, typing.Any]:
-        return {'columns': []}
-
-
-class ExcelModel(metaclass=ExcelModelMeta):
-    columns: list['TColumnDef']
+class ExcelModel(metaclass=CollectorMeta):
+    columns: ListCollector['TColumnDef']
 
     @classmethod
     def as_table(

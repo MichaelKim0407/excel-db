@@ -5,17 +5,11 @@ from functools import cached_property
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 
-from .utils.subclassing import SubclassInjectMeta
+from .utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelDBMeta(SubclassInjectMeta):
-    @staticmethod
-    def vars() -> typing.Mapping[str, typing.Any]:
-        return {'tables': []}
-
-
-class ExcelDB(metaclass=ExcelDBMeta):
-    tables: list['TTableDef']
+class ExcelDB(metaclass=CollectorMeta):
+    tables: ListCollector['TTableDef']
 
     MODE_OPEN = 'o'  # open an existing file; FileNotFoundError
     MODE_CREATE = 'n'  # create a new file; FileExistsError
