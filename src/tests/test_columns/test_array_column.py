@@ -8,11 +8,12 @@ from excel_db.models import ExcelModel
 
 @pytest.fixture()
 def excel(lazy_init_excel):
-    return lazy_init_excel('users', 'name', 'John\nDoe', None, 'Bob', 1.5)
+    return lazy_init_excel('users', 'name', 'John\nDoe', None, 'Bob, C.', 1.5)
 
 
 class User(ExcelModel):
     name = ArrayColumn(inner=StringColumn())
+    name2 = ArrayColumn(name='name', delimiter=',', strip=True)
 
 
 class MyDB(ExcelDB):
@@ -25,9 +26,13 @@ def db(excel):
 
 
 def test_get(db):
-    assert db.users.name[:] == [('John', 'Doe'), None, ('Bob',), ('1.5',)]
+    assert db.users.name[:] == [('John', 'Doe'), None, ('Bob, C.',), ('1.5',)]
 
 
 def test_set(db):
     db.users[1].name = ('Chris',)
     assert db.wb['users'].cell(3, 1).value == 'Chris'
+
+
+def test_strip(db):
+    assert db.users.name2[:] == [('John\nDoe',), None, ('Bob', 'C.'), (1.5,)]

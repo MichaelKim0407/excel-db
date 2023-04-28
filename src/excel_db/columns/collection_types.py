@@ -9,6 +9,7 @@ from .basic_types import BaseTypedColumn
 
 class ArrayColumn(BaseTypedColumn):
     delimiter = '\n'
+    strip = False
     INNER_COLUMN_CLASS = Column
 
     def __init__(self, *, inner: Column = None, **kwargs):
@@ -30,6 +31,8 @@ class ArrayColumn(BaseTypedColumn):
             return
 
         for item in self._split(value):
+            if self.strip:
+                item = item.strip()
             yield self._inner_to_python(item)
 
     def _join(self, value: typing.Iterable[str]) -> str:
