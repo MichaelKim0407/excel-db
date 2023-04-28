@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from . import Column
+from ._base import Column
 
 
 class BaseTypedColumn(Column):

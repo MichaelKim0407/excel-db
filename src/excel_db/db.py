@@ -1,4 +1,5 @@
 import os
+import typing
 from functools import cached_property
 
 from openpyxl.reader.excel import load_workbook
@@ -6,7 +7,7 @@ from openpyxl.workbook import Workbook
 
 
 class ExcelDB:
-    tables: list['ExcelTableDefinition']
+    tables: list['TTableDef']
 
     MODE_OPEN = 'o'  # open an existing file; FileNotFoundError
     MODE_CREATE = 'n'  # create a new file; FileExistsError
@@ -45,4 +46,7 @@ class ExcelDB:
         self.save_as(self.filename)
 
 
-from .tables import ExcelTableDefinition  # noqa: E402
+TDB = typing.TypeVar('TDB', bound=ExcelDB)
+
+if typing.TYPE_CHECKING:
+    from .tables import TTableDef

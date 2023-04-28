@@ -5,22 +5,23 @@ from returns import returns
 
 
 class ExcelModel:
-    columns: list['Column']
+    columns: list['TColumnDef']
 
     @classmethod
     def as_table(
             cls,
             *,
-            table_def_class: typing.Type['ExcelTableDefinition'] = None,
+            table_def_class: typing.Type['TTableDef'] = None,
             **kwargs,
-    ) -> 'ExcelTableDefinition':
+    ) -> 'TTableDef':
         if table_def_class is None:
+            from .tables import ExcelTableDefinition
             table_def_class = ExcelTableDefinition
         return table_def_class(cls, **kwargs)
 
     def __init__(
             self,
-            table: 'ExcelTable',
+            table: 'TTable',
             idx: int,
             row_num: int,
     ):
@@ -28,7 +29,7 @@ class ExcelModel:
         self.idx = idx
         self.row_num = row_num
 
-    def __eq__(self, other: 'ExcelModel') -> bool:
+    def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelModel):
             return False
 
@@ -75,5 +76,8 @@ class ExcelModel:
         return self.table.ws[self.row_num]
 
 
-from .columns import Column  # noqa: E402
-from .tables import ExcelTableDefinition, ExcelTable  # noqa: E402
+TModel = typing.TypeVar('TModel', bound=ExcelModel)
+
+if typing.TYPE_CHECKING:
+    from .tables import TTableDef, TTable
+    from .columns import TColumnDef

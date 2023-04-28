@@ -3,7 +3,7 @@ import typing
 
 from returns import returns
 
-from . import Column
+from ._base import Column
 from .basic_types import BaseTypedColumn
 
 
