@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 from openpyxl.cell import Cell
 
@@ -6,10 +7,16 @@ from ..utils.descriptors import BasePropertyDescriptor
 
 
 class Column(BasePropertyDescriptor['ExcelModel']):
+    cache: bool = True
+
     def _add_to_class(self):
         if not hasattr(self.obj_type, 'columns'):
             self.obj_type.columns = []
         self.obj_type.columns.append(self)
+
+    @cached_property
+    def _cache_name(self) -> str:
+        return f'_v_{self.attr}'
 
     def _get_col_num(self, row: 'ExcelModel') -> int:
         return getattr(row.table, self.attr).col_num
@@ -54,7 +61,7 @@ class Column(BasePropertyDescriptor['ExcelModel']):
         self._f_handle_error = f_handle_error
         return self
 
-    def _get(self, row: 'ExcelModel'):
+    def _get_nocache(self, row: 'ExcelModel'):
         cell = self._get_cell(row)
         try:
             value = self._get_method(row, cell)
@@ -62,6 +69,15 @@ class Column(BasePropertyDescriptor['ExcelModel']):
             return value
         except Exception as ex:
             return self._handle_error(row, cell, ex)
+
+    def _get(self, row: 'ExcelModel'):
+        if self.cache:
+            if self._cache_name not in row.__dict__:
+                value = self._get_nocache(row)
+                row.__dict__[self._cache_name] = value
+            return row.__dict__[self._cache_name]
+        else:
+            return self._get_nocache(row)
 
     def _from_python(self, value):
         return value
@@ -73,12 +89,17 @@ class Column(BasePropertyDescriptor['ExcelModel']):
         cell = self._get_cell(row)
         self._validate(row, value, cell)
         self._set_method(row, value, cell)
+        if self.cache:
+            row.__dict__[self._cache_name] = value
 
     def _delete_default(self, row: 'ExcelModel', cell: Cell):
         cell.value = None
 
     def _delete(self, row: 'ExcelModel'):
         self._delete_method(row, self._get_cell(row))
+        if self.cache:
+            if self._cache_name in row.__dict__:
+                del row.__dict__[self._cache_name]
 
 
 class ExcelColumn:
