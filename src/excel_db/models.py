@@ -64,6 +64,10 @@ class ExcelModel:
     def cella(self, attr: str) -> Cell:
         return self.cell(getattr(self.table, attr).col_num)
 
+    @property
+    def cells(self) -> typing.Sequence[Cell]:
+        return self.table.ws[self.row_num]
+
 
 from .columns import Column  # noqa: E402
 from .tables import ExcelTableDefinition, ExcelTable  # noqa: E402

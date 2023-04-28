@@ -2,6 +2,7 @@ import typing
 from functools import cached_property
 
 from openpyxl.cell import Cell
+from openpyxl.utils import get_column_letter
 
 from ..utils.descriptors import BasePropertyDescriptor
 
@@ -157,6 +158,11 @@ class ExcelColumn:
 
     def cell0(self, idx: int) -> Cell:
         return self.cell(self.table.get_row_num(idx))
+
+    @property
+    def cells(self) -> typing.Sequence[Cell]:
+        col_letter = get_column_letter(self.col_num)
+        return self.table.ws[col_letter][self.table.get_row_num(-1):]
 
 
 from ..tables import ExcelTable  # noqa: E402

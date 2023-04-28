@@ -48,6 +48,18 @@ def test_row_cella(db):
     assert cell.column == 1
 
 
+def test_row_cells(db):
+    cells = db.users[0].cells
+    assert isinstance(cells, (list, tuple))
+    assert len(cells) == 2
+    assert isinstance(cells[0], Cell)
+    assert cells[0].row == 2
+    assert cells[0].column == 1
+    assert isinstance(cells[1], Cell)
+    assert cells[1].row == 2
+    assert cells[1].column == 2
+
+
 def test_col_cell(db):
     cell = db.users.id.cell(3)
     assert isinstance(cell, Cell)
@@ -60,3 +72,18 @@ def test_col_cell0(db):
     assert isinstance(cell, Cell)
     assert cell.row == 2
     assert cell.column == 2
+
+
+def test_col_cells(db):
+    cells = db.users.name.cells
+    assert isinstance(cells, (list, tuple))
+    assert len(cells) == 3
+    assert isinstance(cells[0], Cell)
+    assert cells[0].row == 2
+    assert cells[0].column == 2
+    assert isinstance(cells[1], Cell)
+    assert cells[1].row == 3
+    assert cells[1].column == 2
+    assert isinstance(cells[2], Cell)
+    assert cells[2].row == 4
+    assert cells[2].column == 2
