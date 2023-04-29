@@ -2,7 +2,8 @@ from excel_db.utils.class_collector import CollectorMeta, ListCollector, DictCol
 
 
 class A(metaclass=CollectorMeta):
-    a: ListCollector
+    a = ListCollector()
+    li = []  # a normal list used as a control
 
 
 class A2(A):
@@ -10,55 +11,62 @@ class A2(A):
 
 
 A2.a.append(0)
+A2.li.append(0)
 
 
 class B(A2):
-    b: DictCollector[str, int]
+    b: DictCollector[str, int] = DictCollector()
 
 
 B.a.append(1)
+B.li.append(1)
 B.b['x'] = 1
 
 
 class C(B):
-    a: ListCollector[int]  # this should override the list and start fresh
+    a: ListCollector[int] = ListCollector()  # this should override the list and start fresh
 
 
 C.a.append(100)
 C.b['y'] = 2
 
 
-class Other(metaclass=CollectorMeta):
-    a: list
-    b: 'ListCollector'
-    none: None
+class D(C, B):
+    pass
 
 
 def test_base():
-    assert hasattr(A, 'a')
+    assert isinstance(A.a, ListCollector)
     assert A.a == []
+
+    assert A.li == [0, 1]
 
 
 def test_subclass_extend():
-    assert hasattr(A2, 'a')
+    assert isinstance(A2.a, ListCollector)
     assert A2.a == [0]
+
+    assert A2.li == [0, 1]
 
 
 def test_further_extend():
-    assert hasattr(B, 'a')
+    assert isinstance(B.a, ListCollector)
     assert B.a == [0, 1]
-    assert hasattr(B, 'b')
+    assert isinstance(B.b, DictCollector)
     assert B.b == {'x': 1}
+
+    assert B.li == [0, 1]
 
 
 def test_override():
-    assert hasattr(C, 'a')
+    assert isinstance(C.a, ListCollector)
     assert C.a == [100]
-    assert hasattr(C, 'b')
+    assert isinstance(C.b, DictCollector)
     assert C.b == {'x': 1, 'y': 2}
 
+    assert C.li == [0, 1]
 
-def test_other():
-    assert not hasattr(Other, 'a')
-    assert not hasattr(Other, 'b')
-    assert not hasattr(Other, 'none')
+
+def test_merge():
+    assert isinstance(D.a, ListCollector)
+    assert D.a == [100, 0, 1]

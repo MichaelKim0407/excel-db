@@ -7,7 +7,7 @@ from .utils.class_collector import CollectorMeta, ListCollector
 
 
 class ExcelModel(metaclass=CollectorMeta):
-    columns: ListCollector['TColumnDef']
+    columns: ListCollector['TColumnDef'] = ListCollector()
 
     @classmethod
     def as_table(

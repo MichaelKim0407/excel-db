@@ -9,7 +9,7 @@ from .utils.class_collector import CollectorMeta, ListCollector
 
 
 class ExcelDB(metaclass=CollectorMeta):
-    tables: ListCollector['TTableDef']
+    tables: ListCollector['TTableDef'] = ListCollector()
 
     MODE_OPEN = 'o'  # open an existing file; FileNotFoundError
     MODE_CREATE = 'n'  # create a new file; FileExistsError
