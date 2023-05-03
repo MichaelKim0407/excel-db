@@ -36,6 +36,13 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
     def model(self) -> typing.Type[TModel]:
         return self.table.model
 
+    @property
+    def _max_row(self) -> int:
+        return self.ws.max_row
+
+    def __len__(self) -> int:
+        return self._max_row - self.table.title_row
+
     def get_row_num(self, idx: int) -> int:
         return self.table.title_row + idx + 1
 
@@ -55,7 +62,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
             stop = s.stop
             step = s.step
 
-        return list(range(self.ws.max_row - self.table.title_row))[start:stop:step]
+        return list(range(len(self)))[start:stop:step]
 
     def __getitem__(self, idx: int | slice) -> typing.Union[TModel, list[TModel]]:
         if isinstance(idx, slice):
@@ -64,9 +71,6 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
                 for i in self._get_range(idx)
             ]
         return self.model(self, idx, self.get_row_num(idx))
-
-    def __len__(self) -> int:
-        return len(self._get_range())
 
     def __iter__(self) -> typing.Iterator[TModel]:
         for i in self._get_range():
