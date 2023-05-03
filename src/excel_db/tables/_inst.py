@@ -107,6 +107,17 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
         row_num = self.ws._current_row  # noqa: pycharm
         return self[self.get_idx(row_num)]
 
+    @property
+    def _max_column_letter(self) -> str:
+        return getattr(self, self.model.columns[-1].attr).col_letter
+
+    @property
+    def _filter_ref_str(self) -> str:
+        return f'A{self.table.title_row}:{self._max_column_letter}{self._max_row}'
+
+    def add_filter(self):
+        self.ws.auto_filter.ref = self._filter_ref_str
+
 
 TTable = typing.TypeVar('TTable', bound=ExcelTable)
 

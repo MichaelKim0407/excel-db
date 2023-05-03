@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
@@ -17,6 +18,10 @@ class ExcelColumn(typing.Generic[TTable, TColumnDef]):
         self.table = table
         self.column_def = column_def
         self.col_num = col_num
+
+    @cached_property
+    def col_letter(self) -> str:
+        return get_column_letter(self.col_num)
 
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelColumn):
@@ -65,8 +70,7 @@ class ExcelColumn(typing.Generic[TTable, TColumnDef]):
 
     @property
     def cells(self) -> typing.Sequence[Cell]:
-        col_letter = get_column_letter(self.col_num)
-        return self.table.ws[col_letter][self.table.get_row_num(-1):]
+        return self.table.ws[self.col_letter][self.table.get_row_num(-1):]
 
 
 TColumn = typing.TypeVar('TColumn', bound=ExcelColumn)
