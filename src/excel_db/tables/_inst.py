@@ -1,7 +1,9 @@
 import typing
+from functools import cached_property
 
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
+from returns import returns
 
 from ._def import TTableDef
 from ..db import TDB
@@ -95,6 +97,12 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
             from ..columns import ExcelColumn
             self._columns_cache[attr] = ExcelColumn(self, column_def, col_num)
         return self._columns_cache[attr]
+
+    @cached_property
+    @returns(tuple)
+    def columns(self) -> typing.Sequence['TColumn']:
+        for column in self.model.columns:
+            yield self._get_column(column.attr)
 
     def __getattr__(self, attr: str) -> 'TColumn':
         return self._get_column(attr)
