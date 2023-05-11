@@ -15,11 +15,11 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
     def __init__(
             self,
             db: TDB,
-            table: TTableDef,
+            table_def: TTableDef,
             ws: Worksheet,
     ):
         self.db = db
-        self.table = table
+        self.table_def = table_def
         self.ws = ws
 
         self._columns_cache = {}
@@ -30,26 +30,26 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
 
         return (
                 self.db == other.db
-                and self.table == other.table
+                and self.table_def == other.table_def
                 and self.ws == other.ws
         )
 
     @property
     def model(self) -> typing.Type[TModel]:
-        return self.table.model
+        return self.table_def.model
 
     @property
     def _max_row(self) -> int:
         return self.ws.max_row
 
     def __len__(self) -> int:
-        return self._max_row - self.table.title_row
+        return self._max_row - self.table_def.title_row
 
     def get_row_num(self, idx: int) -> int:
-        return self.table.title_row + idx + 1
+        return self.table_def.title_row + idx + 1
 
     def get_idx(self, row_num: int) -> int:
-        return row_num - self.table.title_row - 1
+        return row_num - self.table_def.title_row - 1
 
     def _get_range(
             self,
@@ -85,7 +85,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
         raise AttributeError(attr)
 
     def _get_col_num(self, name: str) -> int:
-        for cell in self.ws[self.table.title_row]:
+        for cell in self.ws[self.table_def.title_row]:
             if cell.value == name:
                 return cell.column
         raise ColumnNotFound(name)
@@ -121,7 +121,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
 
     @property
     def _filter_ref_str(self) -> str:
-        return f'A{self.table.title_row}:{self._max_column_letter}{self._max_row}'
+        return f'A{self.table_def.title_row}:{self._max_column_letter}{self._max_row}'
 
     def add_filter(self):
         self.ws.auto_filter.ref = self._filter_ref_str
