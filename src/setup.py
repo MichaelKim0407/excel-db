@@ -31,6 +31,12 @@ requirements_dev = (
     *requirements_dev_test,
 )
 
+requirements_ci = (
+    *requirements_dev_lint,
+    *requirements_dev_test,
+    'coveralls',
+)
+
 setup(
     name='excel-db',
     version=__version__,
@@ -48,6 +54,7 @@ setup(
     install_requires=requirements,
     extras_require={
         'dev': requirements_dev,
+        'ci': requirements_ci,
     },
 
     classifiers=[
