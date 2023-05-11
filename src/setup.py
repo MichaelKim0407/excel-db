@@ -44,6 +44,7 @@ setup(
     author='Zheng Jin',
     author_email='mkim0407@gmail.com',
 
+    python_requires='>=3.11',
     install_requires=requirements,
     extras_require={
         'dev': requirements_dev,
@@ -58,10 +59,6 @@ setup(
 
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
 
         'Topic :: Software Development :: Libraries :: Python Modules',
