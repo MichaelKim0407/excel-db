@@ -38,14 +38,14 @@ requirements_ci = (
 )
 
 setup(
-    name='excel-db',
+    name='excel-models',
     version=__version__,
     packages=find_packages(exclude=['tests', 'tests.*']),
     description='Model-style Excel File Accessor',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
-    url='https://github.com/MichaelKim0407/excel-db',
+    url='https://github.com/MichaelKim0407/excel-models',
     license='MIT',
     author='Zheng Jin',
     author_email='mkim0407@gmail.com',
