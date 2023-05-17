@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytest
 
-from excel_db.columns.basic_types import DateTimeColumn
-from excel_db.db import ExcelDB
-from excel_db.models import ExcelModel
+from excel_models.columns.basic_types import DateTimeColumn
+from excel_models.db import ExcelDB
+from excel_models.models import ExcelModel
 
 
 @pytest.fixture()

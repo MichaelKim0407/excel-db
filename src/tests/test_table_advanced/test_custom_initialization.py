@@ -1,8 +1,8 @@
 from openpyxl.worksheet.worksheet import Worksheet
 
-from excel_db.columns import Column
-from excel_db.db import ExcelDB
-from excel_db.models import ExcelModel
+from excel_models.columns import Column
+from excel_models.db import ExcelDB
+from excel_models.models import ExcelModel
 
 
 class User(ExcelModel):

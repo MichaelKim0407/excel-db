@@ -1,10 +1,10 @@
 import pytest
 
-from excel_db.columns.basic_types import StringColumn
-from excel_db.db import ExcelDB
-from excel_db.exceptions import ValidationError
-from excel_db.models import ExcelModel
-from excel_db.validators.comparisons import required
+from excel_models.columns.basic_types import StringColumn
+from excel_models.db import ExcelDB
+from excel_models.exceptions import ValidationError
+from excel_models.models import ExcelModel
+from excel_models.validators.comparisons import required
 
 
 @pytest.fixture()

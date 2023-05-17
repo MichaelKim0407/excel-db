@@ -2,7 +2,7 @@ from pathlib import Path
 
 from setuptools import setup, find_packages
 
-from excel_db import __version__
+from excel_models import __version__
 
 project_dir = Path(__file__).parent
 try:
@@ -38,14 +38,14 @@ requirements_ci = (
 )
 
 setup(
-    name='excel-db',
+    name='excel-models',
     version=__version__,
     packages=find_packages(exclude=['tests', 'tests.*']),
     description='Model-style Excel File Accessor',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
-    url='https://github.com/MichaelKim0407/excel-db',
+    url='https://github.com/MichaelKim0407/excel-models',
     license='MIT',
     author='Zheng Jin',
     author_email='mkim0407@gmail.com',

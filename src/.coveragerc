@@ -1,5 +1,5 @@
 [run]
-source = excel_db
+source = excel_models
 
 [report]
 show_missing = True

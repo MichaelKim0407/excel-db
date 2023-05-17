@@ -2,9 +2,9 @@ import json
 
 import pytest
 
-from excel_db.columns.collection_types import JsonColumn
-from excel_db.db import ExcelDB
-from excel_db.models import ExcelModel
+from excel_models.columns.collection_types import JsonColumn
+from excel_models.db import ExcelDB
+from excel_models.models import ExcelModel
 
 
 @pytest.fixture()

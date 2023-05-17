@@ -1,6 +1,6 @@
 import pytest
 
-from excel_db.db import ExcelDB
+from excel_models.db import ExcelDB
 
 
 class TestOpenModes:

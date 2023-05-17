@@ -1,9 +1,9 @@
 import pytest
 
-from excel_db.columns.basic_types import StringColumn
-from excel_db.columns.collection_types import ArrayColumn
-from excel_db.db import ExcelDB
-from excel_db.models import ExcelModel
+from excel_models.columns.basic_types import StringColumn
+from excel_models.columns.collection_types import ArrayColumn
+from excel_models.db import ExcelDB
+from excel_models.models import ExcelModel
 
 
 @pytest.fixture()

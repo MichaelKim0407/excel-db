@@ -1,4 +1,4 @@
-from excel_db.utils.class_collector import CollectorMeta, ListCollector, DictCollector
+from excel_models.utils.class_collector import CollectorMeta, ListCollector, DictCollector
 
 
 class A(metaclass=CollectorMeta):
