@@ -5,13 +5,11 @@ from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
 from returns import returns
 
-from ._def import TTableDef
-from ..db import TDB
 from ..exceptions import ColumnNotFound
-from ..models import TModel
+from ..typing import AbstractTable, TDB, TModel, TTableDef, TColumnDef, TColumn
 
 
-class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
+class ExcelTable(AbstractTable):
     def __init__(
             self,
             db: TDB,
@@ -22,7 +20,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
         self.table_def = table_def
         self.ws = ws
 
-        self._columns_cache = {}
+        self.columns_cache = {}
 
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelTable):
@@ -66,7 +64,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
 
         return list(range(len(self)))[start:stop:step]
 
-    def __getitem__(self, idx: int | slice) -> typing.Union[TModel, list[TModel]]:
+    def __getitem__(self, idx: int | slice) -> TModel | list[TModel]:
         if isinstance(idx, slice):
             return [
                 self[i]
@@ -78,7 +76,7 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
         for i in self._get_range():
             yield self[i]
 
-    def _get_column_def(self, attr: str) -> 'TColumnDef':
+    def _get_column_def(self, attr: str) -> TColumnDef:
         for column in self.model.columns:
             if column.attr == attr:
                 return column
@@ -90,24 +88,24 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
                 return cell.column
         raise ColumnNotFound(name)
 
-    def _get_column(self, attr: str) -> 'TColumn':
-        if attr not in self._columns_cache:
+    def _get_column(self, attr: str) -> TColumn:
+        if attr not in self.columns_cache:
             column_def = self._get_column_def(attr)
             col_num = self._get_col_num(column_def.name)
             from ..columns import ExcelColumn
-            self._columns_cache[attr] = ExcelColumn(self, column_def, col_num)
-        return self._columns_cache[attr]
+            self.columns_cache[attr] = ExcelColumn(self, column_def, col_num)
+        return self.columns_cache[attr]
 
     @cached_property
     @returns(tuple)
-    def columns(self) -> typing.Sequence['TColumn']:
+    def columns(self) -> typing.Sequence[TColumn]:
         for column in self.model.columns:
             yield self._get_column(column.attr)
 
-    def __getattr__(self, attr: str) -> 'TColumn':
+    def __getattr__(self, attr: str) -> TColumn:
         return self._get_column(attr)
 
-    def cell(self, row_num, col_num) -> Cell:
+    def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 
     def new(self) -> TModel:
@@ -125,9 +123,3 @@ class ExcelTable(typing.Generic[TDB, TModel, TTableDef]):
 
     def add_filter(self):
         self.ws.auto_filter.ref = self._filter_ref_str
-
-
-TTable = typing.TypeVar('TTable', bound=ExcelTable)
-
-if typing.TYPE_CHECKING:
-    from ..columns import TColumnDef, TColumn

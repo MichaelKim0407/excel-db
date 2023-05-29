@@ -1,4 +1,4 @@
-from ._base import Column, TColumnDef
-from ._inst import ExcelColumn, TColumn
+from ._base import Column
+from ._inst import ExcelColumn
 
-__all__ = ('Column', 'TColumnDef', 'ExcelColumn', 'TColumn')
+__all__ = ('Column', 'ExcelColumn')

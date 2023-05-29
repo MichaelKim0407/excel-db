@@ -3,27 +3,28 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
+from .typing import AbstractModel, TColumnDef, TTableDef, TTable, CellValue
 from .utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelModel(metaclass=CollectorMeta):
-    columns: ListCollector['TColumnDef'] = ListCollector()
+class ExcelModel(AbstractModel, metaclass=CollectorMeta):
+    columns: ListCollector[TColumnDef] = ListCollector()
 
     @classmethod
     def as_table(
             cls,
             *,
-            table_def_class: typing.Type['TTableDef'] = None,
-            **kwargs,
-    ) -> 'TTableDef':
+            table_def_class: typing.Type[TTableDef] = None,
+            **table_def_kwargs,
+    ) -> TTableDef:
         if table_def_class is None:
             from .tables import ExcelTableDefinition
             table_def_class = ExcelTableDefinition
-        return table_def_class(cls, **kwargs)
+        return table_def_class(cls, **table_def_kwargs)
 
     def __init__(
             self,
-            table: 'TTable',
+            table: TTable,
             idx: int,
             row_num: int,
     ):
@@ -50,16 +51,16 @@ class ExcelModel(metaclass=CollectorMeta):
         return False
 
     @returns(dict)
-    def as_dict(self) -> dict[str, typing.Any]:
+    def as_dict(self) -> dict[str, CellValue]:
         for column in self.columns:
             yield column.name, column.__get__(self)
 
     def set_dict(
             self,
-            mapping: typing.Mapping[str, typing.Any] = None,
+            mapping: typing.Mapping[str, CellValue] = None,
             /,
             **kwargs,
-    ):
+    ) -> None:
         if mapping is not None:
             for k, v in mapping.items():
                 setattr(self, k, v)
@@ -78,10 +79,3 @@ class ExcelModel(metaclass=CollectorMeta):
     @property
     def cells(self) -> typing.Sequence[Cell]:
         return self.table.ws[self.row_num]
-
-
-TModel = typing.TypeVar('TModel', bound=ExcelModel)
-
-if typing.TYPE_CHECKING:
-    from .tables import TTableDef, TTable
-    from .columns import TColumnDef

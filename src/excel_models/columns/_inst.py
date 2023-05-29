@@ -4,11 +4,10 @@ from functools import cached_property
 from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 
-from ._base import TColumnDef
-from ..tables import TTable
+from ..typing import AbstractColumn, TTable, TColumnDef, CellValue
 
 
-class ExcelColumn(typing.Generic[TTable, TColumnDef]):
+class ExcelColumn(AbstractColumn):
     def __init__(
             self,
             table: TTable,
@@ -33,7 +32,7 @@ class ExcelColumn(typing.Generic[TTable, TColumnDef]):
                 and self.col_num == other.col_num
         )
 
-    def __getitem__(self, idx: int | slice):
+    def __getitem__(self, idx: int | slice) -> CellValue | list[CellValue]:
         if isinstance(idx, slice):
             return [
                 self.column_def.__get__(row)
@@ -42,11 +41,11 @@ class ExcelColumn(typing.Generic[TTable, TColumnDef]):
 
         return self.column_def.__get__(self.table[idx])
 
-    def __iter__(self) -> typing.Iterator:
+    def __iter__(self) -> typing.Iterator[CellValue]:
         for row in self.table:
             yield self.column_def.__get__(row)
 
-    def __setitem__(self, idx: int | slice, value):
+    def __setitem__(self, idx: int | slice, value: CellValue) -> None:
         if isinstance(idx, slice):
             for row, v in zip(self.table[idx], value, strict=True):
                 self.column_def.__set__(row, v)
@@ -71,6 +70,3 @@ class ExcelColumn(typing.Generic[TTable, TColumnDef]):
     @property
     def cells(self) -> typing.Sequence[Cell]:
         return self.table.ws[self.col_letter][self.table.get_row_num(-1):]
-
-
-TColumn = typing.TypeVar('TColumn', bound=ExcelColumn)
