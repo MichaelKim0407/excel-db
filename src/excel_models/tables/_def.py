@@ -40,7 +40,7 @@ class ExcelTableDefinition(
         pass
 
     @property
-    def _initialize_method(self):
+    def _initialize_method(self) -> typing.Callable:
         if self._f_initialize is None:
             return self._initialize_default
         else:
@@ -48,7 +48,7 @@ class ExcelTableDefinition(
 
     def initialize(self, db: ExcelDB, ws: Worksheet):
         self._initialize_title_row(db, ws)
-        self._initialize_method(db, ws)  # noqa: pycharm
+        self._initialize_method(db, ws)
 
     def initializer(self, f_initialize):
         self._f_initialize = f_initialize

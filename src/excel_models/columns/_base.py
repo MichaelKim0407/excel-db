@@ -42,14 +42,14 @@ class Column(BasePropertyDescriptor[ExcelModel]):
         raise
 
     @property
-    def _handle_error_method(self):
+    def _handle_error_method(self) -> typing.Callable:
         if self._f_handle_error is None:
             return self._handle_error_default
         else:
             return self._f_handle_error
 
     def _handle_error(self, row: ExcelModel, cell: Cell, ex: Exception):
-        return self._handle_error_method(row, cell, ex)  # noqa: pycharm
+        return self._handle_error_method(row, cell, ex)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
