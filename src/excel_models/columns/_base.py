@@ -16,7 +16,7 @@ class Column(BasePropertyDescriptor[ExcelModel]):
         return getattr(row.table, self.attr).col_num
 
     def _get_cell(self, row: ExcelModel) -> Cell:
-        return row.table.ws.cell(row.row_num, self._get_col_num(row))
+        return row.cell(self._get_col_num(row))
 
     def _to_python(self, value):
         return value
