@@ -3,7 +3,7 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
-from .typing import AbstractModel, TColumnDef, TTableDef, TTable, CellValue
+from .typing import AbstractModel, TColumnDef, TTableDef, TTable, ColumnValue
 from .utils.class_collector import CollectorMeta, ListCollector
 
 
@@ -50,13 +50,13 @@ class ExcelModel(AbstractModel, metaclass=CollectorMeta):
         return False
 
     @returns(dict)
-    def as_dict(self) -> dict[str, CellValue]:
+    def as_dict(self) -> dict[str, ColumnValue]:
         for column_def in self.column_defs:
             yield column_def.name, column_def.__get__(self)
 
     def set_dict(
             self,
-            mapping: typing.Mapping[str, CellValue] = None,
+            mapping: typing.Mapping[str, ColumnValue] = None,
             /,
             **kwargs,
     ) -> None:

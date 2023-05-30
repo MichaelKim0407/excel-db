@@ -5,6 +5,7 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
 CellValue = typing.TypeVar('CellValue')
+ColumnValue = typing.TypeVar('ColumnValue')
 
 
 class AbstractDB:
@@ -23,7 +24,7 @@ class AbstractModel:
     table: 'TTable'
     idx: int
     row_num: int
-    values_cache: dict[str, CellValue]
+    values_cache: dict[str, ColumnValue]
 
     @classmethod
     def as_table(cls, **table_def_kwargs) -> 'TTableDef':
@@ -35,12 +36,12 @@ class AbstractModel:
     def __bool__(self) -> bool:
         raise NotImplementedError  # pragma: no cover
 
-    def as_dict(self) -> dict[str, CellValue]:
+    def as_dict(self) -> dict[str, ColumnValue]:
         raise NotImplementedError  # pragma: no cover
 
     def set_dict(
             self,
-            mapping: typing.Mapping[str, CellValue] = None,
+            mapping: typing.Mapping[str, ColumnValue] = None,
             /,
             **kwargs,
     ) -> None:
@@ -79,10 +80,10 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def init_column(self, table: 'TTable', col_num: int) -> tuple['TColumn', int]:
         raise NotImplementedError  # pragma: no cover
 
-    def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> CellValue:
+    def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
-    def __set__(self, row: TModel, value: CellValue) -> None:
+    def __set__(self, row: TModel, value: ColumnValue) -> None:
         raise NotImplementedError  # pragma: no cover
 
     def __delete__(self, row: TModel) -> None:
@@ -179,13 +180,13 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover
 
-    def __getitem__(self, idx: int | slice) -> CellValue | list[CellValue]:
+    def __getitem__(self, idx: int | slice) -> ColumnValue | list[ColumnValue]:
         raise NotImplementedError  # pragma: no cover
 
-    def __iter__(self) -> typing.Iterator[CellValue]:
+    def __iter__(self) -> typing.Iterator[ColumnValue]:
         raise NotImplementedError  # pragma: no cover
 
-    def __setitem__(self, idx: int | slice, value: CellValue) -> None:
+    def __setitem__(self, idx: int | slice, value: ColumnValue) -> None:
         raise NotImplementedError  # pragma: no cover
 
     def cell(self, row_num: int) -> Cell:

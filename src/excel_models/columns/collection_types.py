@@ -21,16 +21,16 @@ class ArrayColumn(BaseTypedColumn):
     def _split(self, value: str) -> list[str]:
         return value.split(self.delimiter)
 
-    def _inner_to_python(self, value):
-        return self.inner._to_python(value)  # noqa: pycharm
+    def _inner_to_python(self, raw):
+        return self.inner._to_python(raw)  # noqa: pycharm
 
     @returns(tuple)
-    def _convert_to_python(self, value):
-        if not isinstance(value, str):
-            yield self._inner_to_python(value)
+    def _convert_to_python(self, raw):
+        if not isinstance(raw, str):
+            yield self._inner_to_python(raw)
             return
 
-        for item in self._split(value):
+        for item in self._split(raw):
             if self.strip:
                 item = item.strip()
             yield self._inner_to_python(item)
@@ -49,11 +49,11 @@ class ArrayColumn(BaseTypedColumn):
 
 
 class JsonColumn(BaseTypedColumn):
-    def _convert_to_python(self, value):
-        if not isinstance(value, str):
-            return value
+    def _convert_to_python(self, raw):
+        if not isinstance(raw, str):
+            return raw
 
-        return json.loads(value)
+        return json.loads(raw)
 
     def _convert_from_python(self, value):
         return json.dumps(value)

@@ -4,7 +4,7 @@ from functools import cached_property
 from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 
-from ..typing import AbstractColumn, TTable, TColumnDef, CellValue
+from ..typing import AbstractColumn, TTable, TColumnDef, ColumnValue
 
 
 class ExcelColumn(AbstractColumn):
@@ -35,7 +35,7 @@ class ExcelColumn(AbstractColumn):
                 and self.col_num == other.col_num
         )
 
-    def __getitem__(self, idx: int | slice) -> CellValue | list[CellValue]:
+    def __getitem__(self, idx: int | slice) -> ColumnValue | list[ColumnValue]:
         if isinstance(idx, slice):
             return [
                 self.column_def.__get__(row)
@@ -44,11 +44,11 @@ class ExcelColumn(AbstractColumn):
 
         return self.column_def.__get__(self.table[idx])
 
-    def __iter__(self) -> typing.Iterator[CellValue]:
+    def __iter__(self) -> typing.Iterator[ColumnValue]:
         for row in self.table:
             yield self.column_def.__get__(row)
 
-    def __setitem__(self, idx: int | slice, value: CellValue) -> None:
+    def __setitem__(self, idx: int | slice, value: ColumnValue) -> None:
         if isinstance(idx, slice):
             for row, v in zip(self.table[idx], value, strict=True):
                 self.column_def.__set__(row, v)

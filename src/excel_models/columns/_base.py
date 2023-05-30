@@ -3,7 +3,7 @@ import typing
 from openpyxl.cell import Cell
 
 from ..exceptions import DuplicateColumn, ColumnNotFound
-from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn, TColumnDef
+from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn, TColumnDef, CellValue, ColumnValue
 from ..utils.descriptors import BasePropertyDescriptor
 
 
@@ -65,15 +65,15 @@ class Column(
     def _get_cell(self, row: TModel) -> Cell:
         return row.cell(self._get_col_num(row))
 
-    def _to_python(self, value):
-        return value
+    def _to_python(self, raw: CellValue) -> ColumnValue:
+        return raw
 
-    def _get_default(self, row: TModel, cell: Cell):
+    def _get_default(self, row: TModel, cell: Cell) -> ColumnValue:
         return self._to_python(cell.value)
 
     validators = ()
 
-    def _validate(self, row: TModel, value, cell: Cell):
+    def _validate(self, row: TModel, value: ColumnValue, cell: Cell):
         for validator in self.validators:
             validator(row, value, cell)
 
@@ -111,7 +111,7 @@ class Column(
         except Exception as ex:
             return self._handle_error(row, cell, ex)
 
-    def _get(self, row: TModel):
+    def _get(self, row: TModel) -> ColumnValue:
         if self.cache:
             if self.attr not in row.values_cache:
                 value = self._get_nocache(row)
@@ -120,13 +120,13 @@ class Column(
         else:
             return self._get_nocache(row)
 
-    def _from_python(self, value):
+    def _from_python(self, value: ColumnValue) -> CellValue:
         return value
 
-    def _set_default(self, row: TModel, value, cell: Cell):
+    def _set_default(self, row: TModel, value: ColumnValue, cell: Cell) -> None:
         cell.value = self._from_python(value)
 
-    def _set(self, row: TModel, value):
+    def _set(self, row: TModel, value: ColumnValue) -> None:
         cell = self._get_cell(row)
         self._validate(row, value, cell)
         self._set_method(row, value, cell)
