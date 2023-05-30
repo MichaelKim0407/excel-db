@@ -26,7 +26,7 @@ class ExcelDB(AbstractDB, metaclass=CollectorMeta):
         self.filename = filename
         self.mode = mode
 
-        self.ws_cache = {}
+        self.tables_cache = {}
 
     @cached_property
     def wb(self) -> Workbook:

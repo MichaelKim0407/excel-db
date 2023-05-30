@@ -2,7 +2,7 @@ import typing
 
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..typing import AbstractTableDefinition, TDB, TModel, TTable, AbstractTable
+from ..typing import AbstractTableDefinition, TDB, TModel, TTable
 from ..utils.descriptors import BasePropertyDescriptor
 
 
@@ -53,38 +53,39 @@ class ExcelTableDefinition(
         self._f_initialize = f_initialize
         return self
 
-    def _get_default(self, db: TDB) -> Worksheet:
+    def _get_default(self, db: TDB) -> TTable:
         if self.name in db.wb:
-            return db.wb[self.name]
+            ws = db.wb[self.name]
         else:
             ws = db.wb.create_sheet(self.name)
             self.initialize(db, ws)
-            return ws
-
-    def _get(self, db: TDB) -> TTable:
-        if self.attr not in db.ws_cache:
-            ws = self._get_method(db)
-            db.ws_cache[self.attr] = ws
-        ws = db.ws_cache[self.attr]
         return self.table_class(db, self, ws)
 
-    def _set_default(self, db: TDB, ws: Worksheet) -> Worksheet:
+    def _get(self, db: TDB) -> TTable:
+        if self.attr not in db.tables_cache:
+            table = self._get_method(db)
+            db.tables_cache[self.attr] = table
+        return db.tables_cache[self.attr]
+
+    def _set_default(self, db: TDB, table: TTable | Worksheet) -> TTable:
         if self.name in db.wb:
             del db.wb[self.name]
+        if isinstance(table, Worksheet):
+            ws = table
+        else:
+            ws = table.ws
         copy: Worksheet = db.wb.copy_worksheet(ws)
         copy.title = self.name
-        return copy
+        return self.table_class(db, self, copy)
 
-    def _set(self, db: TDB, ws: typing.Union[Worksheet, TTable]):
-        if isinstance(ws, AbstractTable):
-            ws = ws.ws
-        copy = self._set_method(db, ws)
-        db.ws_cache[self.attr] = copy
+    def _set(self, db: TDB, table: TTable | Worksheet):
+        copy = self._set_method(db, table)
+        db.tables_cache[self.attr] = copy
 
     def _delete_default(self, db: TDB):
         del db.wb[self.name]
 
     def _delete(self, db: TDB):
         if self.attr in db.__dict__:
-            del db.ws_cache[self.attr]
+            del db.tables_cache[self.attr]
         self._delete_method(db)

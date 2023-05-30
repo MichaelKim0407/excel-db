@@ -11,7 +11,7 @@ class AbstractDB:
     tables: list['TTableDef']
     wb: Workbook
 
-    ws_cache: dict[str, Worksheet]
+    tables_cache: dict[str, 'TTable']
 
 
 TDB = typing.TypeVar('TDB', bound=AbstractDB)
@@ -99,7 +99,7 @@ class AbstractTableDefinition(typing.Generic[TDB, TModel]):
     def __get__(self, db: TDB, db_class: typing.Type[TDB] = None) -> 'TTable':
         raise NotImplementedError  # pragma: no cover
 
-    def __set__(self, db: TDB, ws: typing.Union[Worksheet, 'TTable']) -> None:
+    def __set__(self, db: TDB, table: typing.Union['TTable', Worksheet]) -> None:
         raise NotImplementedError  # pragma: no cover
 
     def __delete__(self, db: TDB) -> None:
