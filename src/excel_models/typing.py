@@ -26,12 +26,7 @@ class AbstractModel:
     values_cache: dict[str, CellValue]
 
     @classmethod
-    def as_table(
-            cls,
-            *,
-            table_def_class: typing.Type['TTableDef'] = None,
-            **table_def_kwargs,
-    ) -> 'TTableDef':
+    def as_table(cls, **table_def_kwargs) -> 'TTableDef':
         raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other: typing.Self) -> bool:

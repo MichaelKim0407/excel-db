@@ -2,7 +2,7 @@ import typing
 
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..typing import AbstractTableDefinition, TDB, TModel, TTable
+from ..typing import AbstractTableDefinition, TDB, TTable
 from ..utils.descriptors import BasePropertyDescriptor
 
 
@@ -10,21 +10,13 @@ class ExcelTableDefinition(
     BasePropertyDescriptor[TDB],
     AbstractTableDefinition,
 ):
+    table_class: typing.Type[TTable] = None
     title_row: int = 1
 
-    def __init__(
-            self,
-            model: typing.Type[TModel],
-            *,
-            table_class: typing.Type[TTable] = None,
-            **kwargs,
-    ):
-        super().__init__(**kwargs)
-        self.model = model
-        if table_class is None:
+    def __post_init__(self):
+        if self.table_class is None:
             from ._inst import ExcelTable
-            table_class = ExcelTable
-        self.table_class: typing.Type[TTable] = table_class
+            self.table_class = ExcelTable
 
     def _add_to_class(self):
         self.obj_type.tables.append(self)

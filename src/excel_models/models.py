@@ -9,18 +9,17 @@ from .utils.class_collector import CollectorMeta, ListCollector
 
 class ExcelModel(AbstractModel, metaclass=CollectorMeta):
     columns: ListCollector[TColumnDef] = ListCollector()
+    table_def_class: typing.Type[TTableDef] = None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if cls.table_def_class is None:
+            from .tables import ExcelTableDefinition
+            cls.table_def_class = ExcelTableDefinition
 
     @classmethod
-    def as_table(
-            cls,
-            *,
-            table_def_class: typing.Type[TTableDef] = None,
-            **table_def_kwargs,
-    ) -> TTableDef:
-        if table_def_class is None:
-            from .tables import ExcelTableDefinition
-            table_def_class = ExcelTableDefinition
-        return table_def_class(cls, **table_def_kwargs)
+    def as_table(cls, **table_def_kwargs) -> TTableDef:
+        return cls.table_def_class(model=cls, **table_def_kwargs)
 
     def __init__(
             self,
