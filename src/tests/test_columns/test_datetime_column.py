@@ -14,7 +14,7 @@ def excel(lazy_init_excel):
 
 class User(ExcelModel):
     last_login = DateTimeColumn(format='%Y/%m/%d')
-    last_login2 = DateTimeColumn(name='last_login')
+    last_login2 = DateTimeColumn(alias=last_login)
 
 
 class MyDB(ExcelDB):

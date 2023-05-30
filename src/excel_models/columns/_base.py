@@ -2,7 +2,8 @@ import typing
 
 from openpyxl.cell import Cell
 
-from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn
+from ..exceptions import DuplicateColumn, ColumnNotFound
+from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn, TColumnDef
 from ..utils.descriptors import BasePropertyDescriptor
 
 
@@ -11,6 +12,10 @@ class Column(
     AbstractColumnDefinition,
 ):
     cache: bool = True
+    """
+    alias: Alias to another column. `name` attribute is ignored and will be overwritten.
+    """
+    alias: TColumnDef = None
     column_class: typing.Type[TColumn] = None
 
     def __post_init__(self):
@@ -20,17 +25,37 @@ class Column(
 
     def _add_to_class(self):
         self.obj_type.column_defs.append(self)
+        if self.alias is not None:
+            self.name = self.alias.name
 
     def make_column(self, table: TTable, col_num: int) -> TColumn:
-        return self.column_class(table, self, col_num)
+        return self.column_class(
+            table,
+            self,
+            col_num,
+            concrete=self.alias is None,
+        )
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
         if title != self.name:
             return None
+
+        if self.alias is None:
+            try:
+                table.get_by_col_num(col_num)
+            except ColumnNotFound:
+                pass
+            else:
+                raise DuplicateColumn(self.name)
+
         return self.make_column(table, col_num)
 
     def init_column(self, table: TTable, col_num: int) -> tuple[TColumn, int]:
+        if self.alias is not None:
+            column = getattr(table, self.alias.attr)
+            return self.make_column(table, column.col_num), 0
+
         table.set_title(col_num, self.name)
         return self.make_column(table, col_num), 1
 

@@ -1,3 +1,7 @@
+class DuplicateColumn(Exception):
+    pass
+
+
 class ColumnNotFound(Exception):
     pass
 

@@ -12,7 +12,7 @@ def excel(lazy_init_excel):
 
 class User(ExcelModel):
     id = IntColumn()
-    id2 = IntColumn(name='id', float_strict=False)
+    id2 = IntColumn(alias=id, float_strict=False)
 
 
 class MyDB(ExcelDB):

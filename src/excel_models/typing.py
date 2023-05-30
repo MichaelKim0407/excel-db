@@ -157,6 +157,9 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     def __getattr__(self, attr: str) -> 'TColumn':
         raise NotImplementedError  # pragma: no cover
 
+    def get_by_col_num(self, col_num: int) -> 'TColumn':
+        raise NotImplementedError  # pragma: no cover
+
     def cell(self, row_num: int, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
 
@@ -171,6 +174,7 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     table: TTable
     column_def: TColumnDef
     col_num: int
+    concrete: bool
 
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover

@@ -13,10 +13,13 @@ class ExcelColumn(AbstractColumn):
             table: TTable,
             column_def: TColumnDef,
             col_num: int,
+            *,
+            concrete: bool,
     ):
         self.table = table
         self.column_def = column_def
         self.col_num = col_num
+        self.concrete = concrete
 
     @cached_property
     def col_letter(self) -> str:

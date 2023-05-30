@@ -19,8 +19,8 @@ def excel(lazy_init_excel):
 
 class User(ExcelModel):
     age = FloatColumn(validators=(GreaterThan(3), LessThanOrEqualTo(21), NotEqualTo(18)))
-    age2 = FloatColumn(name='age', validators=(IsNot(None),))
-    age3 = FloatColumn(name='age')
+    age2 = FloatColumn(alias=age, validators=(IsNot(None),))
+    age3 = FloatColumn(alias=age)
 
     @age3.validator
     def age3(self, value, cell):

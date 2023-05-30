@@ -137,6 +137,12 @@ class ExcelTable(AbstractTable):
         else:
             raise AttributeError(attr)
 
+    def get_by_col_num(self, col_num: int) -> TColumn:
+        for column in self.columns:
+            if column.concrete and column.col_num == col_num:
+                return column
+        raise ColumnNotFound(f'col_num = {col_num}')
+
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 
