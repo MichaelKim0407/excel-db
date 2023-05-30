@@ -2,20 +2,20 @@ import typing
 
 from openpyxl.cell import Cell
 
-from ..models import ExcelModel
+from ..typing import TModel, CellValue
 
-TValidator = typing.Callable[[ExcelModel, typing.Any, Cell], None]
+TValidator = typing.Callable[[TModel, CellValue, Cell], None]
 
 
 class AbstractValidator:
-    def __call__(self, row: ExcelModel, value, cell: Cell):
+    def __call__(self, row: TModel, value: CellValue, cell: Cell) -> None:
         raise NotImplementedError  # pragma: no cover
 
 
 class AbstractValueValidator(AbstractValidator):
 
-    def _validate(self, value):
+    def _validate(self, value: CellValue) -> None:
         raise NotImplementedError  # pragma: no cover
 
-    def __call__(self, row: ExcelModel, value, cell: Cell):
+    def __call__(self, row: TModel, value: CellValue, cell: Cell) -> None:
         self._validate(value)
