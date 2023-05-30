@@ -56,7 +56,7 @@ class ExcelColumn(AbstractColumn):
 
         self.column_def.__set__(self.table[idx], value)
 
-    def __delitem__(self, idx: int | slice):
+    def __delitem__(self, idx: int | slice) -> None:
         if isinstance(idx, slice):
             for row in self.table[idx]:
                 self.column_def.__delete__(row)

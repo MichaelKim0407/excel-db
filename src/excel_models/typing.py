@@ -189,6 +189,9 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     def __setitem__(self, idx: int | slice, value: ColumnValue) -> None:
         raise NotImplementedError  # pragma: no cover
 
+    def __delitem__(self, idx: int | slice) -> None:
+        raise NotImplementedError  # pragma: no cover
+
     def cell(self, row_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
 
