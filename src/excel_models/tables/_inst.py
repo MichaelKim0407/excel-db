@@ -20,6 +20,7 @@ class ExcelTable(AbstractTable):
 
         self.columns_cache = {}
         self.not_found = {}
+        self.not_defined = []
 
     @property
     def model(self) -> typing.Type[TModel]:
@@ -36,6 +37,7 @@ class ExcelTable(AbstractTable):
     def _clear_cache(self):
         self.columns_cache.clear()
         self.not_found.clear()
+        self.not_defined.clear()
 
     def find_columns(self):
         self._clear_cache()
@@ -43,12 +45,16 @@ class ExcelTable(AbstractTable):
         for cell in self.ws[self.title_row]:
             if cell.value is None:
                 continue
+            defined = False
             for column in self.model.columns:
                 if column.name != cell.value:
                     continue
                 from ..columns import ExcelColumn
                 self.columns_cache[column.attr] = ExcelColumn(self, column, cell.column)
+                defined = True
                 # There may be multiple column accessors to the same Excel column, so we keep going.
+            if not defined:
+                self.not_defined.append(cell.value)
 
         for column in self.model.columns:
             if column.attr in self.columns_cache:
