@@ -96,6 +96,9 @@ class AbstractTableDefinition(typing.Generic[TDB, TModel]):
     def __set_name__(self, db_class: typing.Type[TDB], attr: str):
         raise NotImplementedError  # pragma: no cover
 
+    def make_table(self, db: TDB, ws: Worksheet) -> 'TTable':
+        raise NotImplementedError  # pragma: no cover
+
     def __get__(self, db: TDB, db_class: typing.Type[TDB] = None) -> 'TTable':
         raise NotImplementedError  # pragma: no cover
 

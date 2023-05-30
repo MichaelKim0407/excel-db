@@ -29,6 +29,9 @@ class ExcelTableDefinition(
     def _add_to_class(self):
         self.obj_type.tables.append(self)
 
+    def make_table(self, db: TDB, ws: Worksheet) -> TTable:
+        return self.table_class(db, self, ws)
+
     _f_initialize = None
 
     def _initialize_title_row(self, db: TDB, ws: Worksheet):
@@ -59,7 +62,7 @@ class ExcelTableDefinition(
         else:
             ws = db.wb.create_sheet(self.name)
             self.initialize(db, ws)
-        return self.table_class(db, self, ws)
+        return self.make_table(db, ws)
 
     def _get(self, db: TDB) -> TTable:
         if self.attr not in db.tables_cache:
@@ -76,7 +79,7 @@ class ExcelTableDefinition(
             ws = table.ws
         copy: Worksheet = db.wb.copy_worksheet(ws)
         copy.title = self.name
-        return self.table_class(db, self, copy)
+        return self.make_table(db, copy)
 
     def _set(self, db: TDB, table: TTable | Worksheet):
         copy = self._set_method(db, table)
