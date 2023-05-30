@@ -37,17 +37,21 @@ class ExcelTable(AbstractTable):
         return self.table_def.model
 
     @property
+    def title_row(self) -> int:
+        return self.table_def.title_row
+
+    @property
     def _max_row(self) -> int:
         return self.ws.max_row
 
     def __len__(self) -> int:
-        return self._max_row - self.table_def.title_row
+        return self._max_row - self.title_row
 
     def get_row_num(self, idx: int) -> int:
-        return self.table_def.title_row + idx + 1
+        return self.title_row + idx + 1
 
     def get_idx(self, row_num: int) -> int:
-        return row_num - self.table_def.title_row - 1
+        return row_num - self.title_row - 1
 
     def _get_range(
             self,
@@ -83,7 +87,7 @@ class ExcelTable(AbstractTable):
         raise AttributeError(attr)
 
     def _get_col_num(self, name: str) -> int:
-        for cell in self.ws[self.table_def.title_row]:
+        for cell in self.ws[self.title_row]:
             if cell.value == name:
                 return cell.column
         raise ColumnNotFound(name)
@@ -119,7 +123,7 @@ class ExcelTable(AbstractTable):
 
     @property
     def _filter_ref_str(self) -> str:
-        return f'A{self.table_def.title_row}:{self._max_column_letter}{self._max_row}'
+        return f'A{self.title_row}:{self._max_column_letter}{self._max_row}'
 
     def add_filter(self):
         self.ws.auto_filter.ref = self._filter_ref_str
