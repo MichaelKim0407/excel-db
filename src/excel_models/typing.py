@@ -70,6 +70,15 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def __set_name__(self, model: typing.Type[TModel], attr: str):
         raise NotImplementedError  # pragma: no cover
 
+    def make_column(self, table: 'TTable', col_num: int) -> 'TColumn':
+        raise NotImplementedError  # pragma: no cover
+
+    def match_column(self, table: 'TTable', col_num: int) -> typing.Optional['TColumn']:
+        raise NotImplementedError  # pragma: no cover
+
+    def init_column(self, table: 'TTable', col_num: int) -> 'TColumn':
+        raise NotImplementedError  # pragma: no cover
+
     def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> CellValue:
         raise NotImplementedError  # pragma: no cover
 
@@ -119,6 +128,12 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
         raise NotImplementedError  # pragma: no cover
 
     def init_columns(self) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    def get_title(self, col_num: int) -> str:
+        raise NotImplementedError  # pragma: no cover
+
+    def set_title(self, col_num: int, name: str) -> None:
         raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other: typing.Self) -> bool:

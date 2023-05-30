@@ -46,14 +46,16 @@ class ExcelTable(AbstractTable):
         for cell in self.ws[self.title_row]:
             if cell.value is None:
                 continue
+
             defined = False
             for column_def in self.model.column_defs:
-                if column_def.name != cell.value:
+                column = column_def.match_column(self, cell.column)
+                if column is None:
                     continue
-                from ..columns import ExcelColumn
-                self.columns_cache[column_def.attr] = ExcelColumn(self, column_def, cell.column)
+                self.columns_cache[column_def.attr] = column
                 defined = True
                 # There may be multiple column definitions to the same Excel column, so we keep going.
+
             if not defined:
                 self.not_defined.append(cell.value)
 
@@ -66,9 +68,13 @@ class ExcelTable(AbstractTable):
         self._clear_cache()
 
         for col_num, column_def in enumerate(self.model.column_defs, start=1):
-            self.ws.cell(self.title_row, col_num, column_def.name)
-            from ..columns import ExcelColumn
-            self.columns_cache[column_def.attr] = ExcelColumn(self, column_def, col_num)
+            self.columns_cache[column_def.attr] = column_def.init_column(self, col_num)
+
+    def get_title(self, col_num: int) -> str:
+        return self.ws.cell(self.title_row, col_num).value
+
+    def set_title(self, col_num: int, name: str) -> None:
+        self.ws.cell(self.title_row, col_num, name)
 
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelTable):

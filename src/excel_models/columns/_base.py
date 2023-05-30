@@ -2,7 +2,7 @@ import typing
 
 from openpyxl.cell import Cell
 
-from ..typing import AbstractColumnDefinition, TModel
+from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn
 from ..utils.descriptors import BasePropertyDescriptor
 
 
@@ -11,9 +11,28 @@ class Column(
     AbstractColumnDefinition,
 ):
     cache: bool = True
+    column_class: typing.Type[TColumn] = None
+
+    def __post_init__(self):
+        if self.column_class is None:
+            from ._inst import ExcelColumn
+            self.column_class = ExcelColumn
 
     def _add_to_class(self):
         self.obj_type.column_defs.append(self)
+
+    def make_column(self, table: TTable, col_num: int) -> TColumn:
+        return self.column_class(table, self, col_num)
+
+    def match_column(self, table: TTable, col_num: int) -> TColumn | None:
+        title = table.get_title(col_num)
+        if title != self.name:
+            return None
+        return self.make_column(table, col_num)
+
+    def init_column(self, table: TTable, col_num: int) -> TColumn:
+        table.set_title(col_num, self.name)
+        return self.make_column(table, col_num)
 
     def _get_col_num(self, row: TModel) -> int:
         return getattr(row.table, self.attr).col_num
