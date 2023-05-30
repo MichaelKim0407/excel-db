@@ -10,12 +10,12 @@ from .basic_types import BaseTypedColumn
 class ArrayColumn(BaseTypedColumn):
     delimiter = '\n'
     strip = False
-    INNER_COLUMN_CLASS = Column
+    inner_column_class = Column
 
     def __init__(self, *, inner: Column = None, **kwargs):
         super().__init__(**kwargs)
         if inner is None:
-            inner = self.INNER_COLUMN_CLASS()
+            inner = self.inner_column_class()
         self.inner = inner
 
     def _split(self, value: str) -> list[str]:
