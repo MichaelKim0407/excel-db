@@ -118,6 +118,13 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     ws: Worksheet
 
     columns_cache: dict[str, 'TColumn']
+    columns: typing.Sequence['TColumn']
+
+    def find_columns(self) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    def init_columns(self) -> None:
+        raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover
@@ -135,10 +142,6 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
         raise NotImplementedError  # pragma: no cover
 
     def __iter__(self) -> typing.Iterator[TModel]:
-        raise NotImplementedError  # pragma: no cover
-
-    @property
-    def columns(self) -> typing.Sequence['TColumn']:
         raise NotImplementedError  # pragma: no cover
 
     def __getattr__(self, attr: str) -> 'TColumn':

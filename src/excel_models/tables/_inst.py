@@ -1,12 +1,10 @@
 import typing
-from functools import cached_property
 
 from openpyxl.cell import Cell
 from openpyxl.worksheet.worksheet import Worksheet
-from returns import returns
 
 from ..exceptions import ColumnNotFound
-from ..typing import AbstractTable, TDB, TModel, TTableDef, TColumnDef, TColumn
+from ..typing import AbstractTable, TDB, TModel, TTableDef, TColumn
 
 
 class ExcelTable(AbstractTable):
@@ -21,6 +19,49 @@ class ExcelTable(AbstractTable):
         self.ws = ws
 
         self.columns_cache = {}
+        self.not_found = {}
+
+    @property
+    def model(self) -> typing.Type[TModel]:
+        return self.table_def.model
+
+    @property
+    def title_row(self) -> int:
+        return self.table_def.title_row
+
+    @property
+    def columns(self) -> typing.Sequence[TColumn]:
+        return tuple(self.columns_cache.values())
+
+    def _clear_cache(self):
+        self.columns_cache.clear()
+        self.not_found.clear()
+
+    def find_columns(self):
+        self._clear_cache()
+
+        for cell in self.ws[self.title_row]:
+            if cell.value is None:
+                continue
+            for column in self.model.columns:
+                if column.name != cell.value:
+                    continue
+                from ..columns import ExcelColumn
+                self.columns_cache[column.attr] = ExcelColumn(self, column, cell.column)
+                # There may be multiple column accessors to the same Excel column, so we keep going.
+
+        for column in self.model.columns:
+            if column.attr in self.columns_cache:
+                continue
+            self.not_found[column.attr] = column
+
+    def init_columns(self):
+        self._clear_cache()
+
+        for col_num, column in enumerate(self.model.columns, start=1):
+            self.ws.cell(self.title_row, col_num, column.name)
+            from ..columns import ExcelColumn
+            self.columns_cache[column.attr] = ExcelColumn(self, column, col_num)
 
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelTable):
@@ -31,14 +72,6 @@ class ExcelTable(AbstractTable):
                 and self.table_def == other.table_def
                 and self.ws == other.ws
         )
-
-    @property
-    def model(self) -> typing.Type[TModel]:
-        return self.table_def.model
-
-    @property
-    def title_row(self) -> int:
-        return self.table_def.title_row
 
     @property
     def _max_row(self) -> int:
@@ -80,34 +113,13 @@ class ExcelTable(AbstractTable):
         for i in self._get_range():
             yield self[i]
 
-    def _get_column_def(self, attr: str) -> TColumnDef:
-        for column in self.model.columns:
-            if column.attr == attr:
-                return column
-        raise AttributeError(attr)
-
-    def _get_col_num(self, name: str) -> int:
-        for cell in self.ws[self.title_row]:
-            if cell.value == name:
-                return cell.column
-        raise ColumnNotFound(name)
-
-    def _get_column(self, attr: str) -> TColumn:
-        if attr not in self.columns_cache:
-            column_def = self._get_column_def(attr)
-            col_num = self._get_col_num(column_def.name)
-            from ..columns import ExcelColumn
-            self.columns_cache[attr] = ExcelColumn(self, column_def, col_num)
-        return self.columns_cache[attr]
-
-    @cached_property
-    @returns(tuple)
-    def columns(self) -> typing.Sequence[TColumn]:
-        for column in self.model.columns:
-            yield self._get_column(column.attr)
-
     def __getattr__(self, attr: str) -> TColumn:
-        return self._get_column(attr)
+        if attr in self.not_found:
+            raise ColumnNotFound(self.not_found[attr].name)
+        elif attr in self.columns_cache:
+            return self.columns_cache[attr]
+        else:
+            raise AttributeError(attr)
 
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)

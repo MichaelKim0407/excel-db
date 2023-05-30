@@ -34,11 +34,7 @@ class ExcelTableDefinition(
 
     _f_initialize = None
 
-    def _initialize_title_row(self, db: TDB, ws: Worksheet):
-        for i, column in enumerate(self.model.columns):
-            ws.cell(self.title_row, i + 1, column.name)
-
-    def _initialize_default(self, db: TDB, ws: Worksheet):
+    def _initialize_default(self, db: TDB, table: TTable):
         pass
 
     @property
@@ -48,9 +44,8 @@ class ExcelTableDefinition(
         else:
             return self._f_initialize
 
-    def initialize(self, db: TDB, ws: Worksheet):
-        self._initialize_title_row(db, ws)
-        self._initialize_method(db, ws)
+    def _initialize(self, db: TDB, table: TTable):
+        self._initialize_method(db, table)
 
     def initializer(self, f_initialize):
         self._f_initialize = f_initialize
@@ -59,10 +54,14 @@ class ExcelTableDefinition(
     def _get_default(self, db: TDB) -> TTable:
         if self.name in db.wb:
             ws = db.wb[self.name]
+            table = self.make_table(db, ws)
+            table.find_columns()
         else:
             ws = db.wb.create_sheet(self.name)
-            self.initialize(db, ws)
-        return self.make_table(db, ws)
+            table = self.make_table(db, ws)
+            table.init_columns()
+            self._initialize(db, table)
+        return table
 
     def _get(self, db: TDB) -> TTable:
         if self.attr not in db.tables_cache:
