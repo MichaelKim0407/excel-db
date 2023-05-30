@@ -67,8 +67,11 @@ class ExcelTable(AbstractTable):
     def init_columns(self):
         self._clear_cache()
 
-        for col_num, column_def in enumerate(self.model.column_defs, start=1):
-            self.columns_cache[column_def.attr] = column_def.init_column(self, col_num)
+        col_num = 1
+        for column_def in self.model.column_defs:
+            column, width = column_def.init_column(self, col_num)
+            self.columns_cache[column_def.attr] = column
+            col_num += width
 
     def get_title(self, col_num: int) -> str:
         return self.ws.cell(self.title_row, col_num).value

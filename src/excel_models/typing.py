@@ -76,7 +76,7 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def match_column(self, table: 'TTable', col_num: int) -> typing.Optional['TColumn']:
         raise NotImplementedError  # pragma: no cover
 
-    def init_column(self, table: 'TTable', col_num: int) -> 'TColumn':
+    def init_column(self, table: 'TTable', col_num: int) -> tuple['TColumn', int]:
         raise NotImplementedError  # pragma: no cover
 
     def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> CellValue:

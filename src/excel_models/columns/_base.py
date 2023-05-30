@@ -30,9 +30,9 @@ class Column(
             return None
         return self.make_column(table, col_num)
 
-    def init_column(self, table: TTable, col_num: int) -> TColumn:
+    def init_column(self, table: TTable, col_num: int) -> tuple[TColumn, int]:
         table.set_title(col_num, self.name)
-        return self.make_column(table, col_num)
+        return self.make_column(table, col_num), 1
 
     def _get_col_num(self, row: TModel) -> int:
         return getattr(row.table, self.attr).col_num
