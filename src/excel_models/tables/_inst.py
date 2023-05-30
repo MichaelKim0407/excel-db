@@ -1,6 +1,7 @@
 import typing
 
 from openpyxl.cell import Cell
+from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from ..exceptions import ColumnNotFound
@@ -137,7 +138,7 @@ class ExcelTable(AbstractTable):
 
     @property
     def _max_column_letter(self) -> str:
-        return getattr(self, self.model.columns[-1].attr).col_letter
+        return get_column_letter(self.ws.max_column)
 
     @property
     def _filter_ref_str(self) -> str:
