@@ -13,7 +13,7 @@ class Column(
     cache: bool = True
 
     def _add_to_class(self):
-        self.obj_type.columns.append(self)
+        self.obj_type.column_defs.append(self)
 
     def _get_col_num(self, row: TModel) -> int:
         return getattr(row.table, self.attr).col_num

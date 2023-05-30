@@ -23,8 +23,8 @@ def db(tmp_excel_file):
 
 
 def test_model_columns():
-    assert len(User.columns) == 2
-    assert [column.name for column in User.columns] == ['id', 'name']
+    assert len(User.column_defs) == 2
+    assert [column_def.name for column_def in User.column_defs] == ['id', 'name']
 
 
 def test_get_by_row(db, tmp_excel_data):

@@ -18,7 +18,7 @@ TDB = typing.TypeVar('TDB', bound=AbstractDB)
 
 
 class AbstractModel:
-    columns: list['TColumnDef']
+    column_defs: list['TColumnDef']
 
     table: 'TTable'
     idx: int

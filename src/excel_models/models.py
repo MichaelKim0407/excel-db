@@ -8,7 +8,7 @@ from .utils.class_collector import CollectorMeta, ListCollector
 
 
 class ExcelModel(AbstractModel, metaclass=CollectorMeta):
-    columns: ListCollector[TColumnDef] = ListCollector()
+    column_defs: ListCollector[TColumnDef] = ListCollector()
     table_def_class: typing.Type[TTableDef] = None
 
     def __init_subclass__(cls, **kwargs):
@@ -51,8 +51,8 @@ class ExcelModel(AbstractModel, metaclass=CollectorMeta):
 
     @returns(dict)
     def as_dict(self) -> dict[str, CellValue]:
-        for column in self.columns:
-            yield column.name, column.__get__(self)
+        for column_def in self.column_defs:
+            yield column_def.name, column_def.__get__(self)
 
     def set_dict(
             self,

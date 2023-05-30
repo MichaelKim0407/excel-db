@@ -47,28 +47,28 @@ class ExcelTable(AbstractTable):
             if cell.value is None:
                 continue
             defined = False
-            for column in self.model.columns:
-                if column.name != cell.value:
+            for column_def in self.model.column_defs:
+                if column_def.name != cell.value:
                     continue
                 from ..columns import ExcelColumn
-                self.columns_cache[column.attr] = ExcelColumn(self, column, cell.column)
+                self.columns_cache[column_def.attr] = ExcelColumn(self, column_def, cell.column)
                 defined = True
-                # There may be multiple column accessors to the same Excel column, so we keep going.
+                # There may be multiple column definitions to the same Excel column, so we keep going.
             if not defined:
                 self.not_defined.append(cell.value)
 
-        for column in self.model.columns:
-            if column.attr in self.columns_cache:
+        for column_def in self.model.column_defs:
+            if column_def.attr in self.columns_cache:
                 continue
-            self.not_found[column.attr] = column
+            self.not_found[column_def.attr] = column_def
 
     def init_columns(self):
         self._clear_cache()
 
-        for col_num, column in enumerate(self.model.columns, start=1):
-            self.ws.cell(self.title_row, col_num, column.name)
+        for col_num, column_def in enumerate(self.model.column_defs, start=1):
+            self.ws.cell(self.title_row, col_num, column_def.name)
             from ..columns import ExcelColumn
-            self.columns_cache[column.attr] = ExcelColumn(self, column, col_num)
+            self.columns_cache[column_def.attr] = ExcelColumn(self, column_def, col_num)
 
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, ExcelTable):
