@@ -1,74 +1,42 @@
 import typing
 
-from openpyxl.cell import Cell
-
-from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn, TColumnDef, CellValue, ColumnValue
+from ..typing import (
+    AbstractColumnDefinition,
+    TModel, TTable, TColumn,
+    CellValue, ColumnValue,
+)
 from ..utils.descriptors import BasePropertyDescriptor
 
 
-class Column(
+class BaseColumnDefinition(
     BasePropertyDescriptor[TModel],
     AbstractColumnDefinition,
 ):
     cache: bool = True
-    """
-    alias: Alias to another column. `name` attribute is ignored and will be overwritten.
-    """
-    alias: TColumnDef = None
     column_class: typing.Type[TColumn] = None
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.column_class is None:
-            from excel_models.column_inst import ExcelColumn
-            self.column_class = ExcelColumn
 
     def _add_to_class(self):
         super()._add_to_class()
         self.obj_type.column_defs.append(self)
-        if self.alias is not None:
-            self.name = self.alias.name
 
-    def make_column(self, table: TTable, col_num: int) -> TColumn:
-        return self.column_class(
-            table,
-            self,
-            col_num,
-            concrete=self.alias is None,
-        )
-
-    def match_column(self, table: TTable, col_num: int) -> TColumn | None:
-        title = table.get_title(col_num)
-        if title != self.name:
-            return None
-
-        return self.make_column(table, col_num)
-
-    def init_column(self, table: TTable, col_num: int) -> tuple[TColumn, int]:
-        if self.alias is not None:
-            column = getattr(table, self.alias.attr)
-            return self.make_column(table, column.col_num), 0
-
-        table.set_title(col_num, self.name)
-        return self.make_column(table, col_num), 1
-
-    def _get_col_num(self, row: TModel) -> int:
-        return getattr(row.table, self.attr).col_num
-
-    def _get_cell(self, row: TModel) -> Cell:
-        return row.cell(self._get_col_num(row))
+    def get_column(self, table: TTable) -> TColumn:
+        return getattr(table, self.attr)
 
     def _to_python(self, raw: CellValue) -> ColumnValue:
         return raw
 
-    def _get_default(self, row: TModel, cell: Cell) -> ColumnValue:
-        return self._to_python(cell.value)
+    def get_raw(self, row: TModel) -> CellValue:
+        return self.get_column(row.table).get_raw(row.row_num)
+
+    def _get_default(self, row: TModel) -> ColumnValue:
+        raw = self.get_raw(row)
+        return self._to_python(raw)
 
     validators = ()
 
-    def _validate(self, row: TModel, value: ColumnValue, cell: Cell):
+    def _validate(self, row: TModel, value: ColumnValue) -> None:
         for validator in self.validators:
-            validator(row, value, cell)
+            validator(row, value)
 
     def validator(self, f_validate):
         if isinstance(self.validators, tuple):
@@ -78,7 +46,7 @@ class Column(
 
     _f_handle_error = None
 
-    def _handle_error_default(self, row: TModel, cell: Cell, ex: Exception):
+    def _handle_error_default(self, row: TModel, ex: Exception) -> ColumnValue:
         raise
 
     @property
@@ -88,21 +56,20 @@ class Column(
         else:
             return self._f_handle_error
 
-    def _handle_error(self, row: TModel, cell: Cell, ex: Exception):
-        return self._handle_error_method(row, cell, ex)
+    def _handle_error(self, row: TModel, ex: Exception) -> ColumnValue:
+        return self._handle_error_method(row, ex)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
         return self
 
-    def _get_nocache(self, row: TModel):
-        cell = self._get_cell(row)
+    def _get_nocache(self, row: TModel) -> ColumnValue:
         try:
-            value = self._get_method(row, cell)
-            self._validate(row, value, cell)
+            value = self._get_method(row)
+            self._validate(row, value)
             return value
         except Exception as ex:
-            return self._handle_error(row, cell, ex)
+            return self._handle_error(row, ex)
 
     def _get(self, row: TModel) -> ColumnValue:
         if self.cache:
@@ -116,21 +83,27 @@ class Column(
     def _from_python(self, value: ColumnValue) -> CellValue:
         return value
 
-    def _set_default(self, row: TModel, value: ColumnValue, cell: Cell) -> None:
-        cell.value = self._from_python(value)
+    def set_raw(self, row: TModel, raw: CellValue) -> None:
+        self.get_column(row.table).set_raw(row.row_num, raw)
+
+    def _set_default(self, row: TModel, value: ColumnValue) -> None:
+        raw = self._from_python(value)
+        self.set_raw(row, raw)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:
-        cell = self._get_cell(row)
-        self._validate(row, value, cell)
-        self._set_method(row, value, cell)
+        self._validate(row, value)
+        self._set_method(row, value)
         if self.cache:
             row.values_cache[self.attr] = value
 
-    def _delete_default(self, row: TModel, cell: Cell):
-        cell.value = None
+    def delete_raw(self, row: TModel) -> None:
+        self.get_column(row.table).delete_raw(row.row_num)
+
+    def _delete_default(self, row: TModel):
+        self.delete_raw(row)
 
     def _delete(self, row: TModel):
-        self._delete_method(row, self._get_cell(row))
+        self._delete_method(row)
         if self.cache:
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]

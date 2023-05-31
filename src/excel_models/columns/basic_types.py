@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from ._base import Column
+from ._std import Column
 from ..typing import CellValue, ColumnValue
 
 

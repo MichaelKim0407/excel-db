@@ -4,6 +4,7 @@ from openpyxl.cell import Cell
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+ColumnCell = Cell | typing.Any
 CellValue = typing.TypeVar('CellValue')
 ColumnValue = typing.TypeVar('ColumnValue')
 
@@ -80,10 +81,22 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def init_column(self, table: 'TTable', col_num: int) -> tuple['TColumn', int]:
         raise NotImplementedError  # pragma: no cover
 
+    def get_column(self, table: 'TTable') -> 'TColumn':
+        raise NotImplementedError  # pragma: no cover
+
+    def get_raw(self, row: TModel) -> CellValue:
+        raise NotImplementedError  # pragma: no cover
+
     def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
+    def set_raw(self, row: TModel, raw: CellValue) -> None:
+        raise NotImplementedError  # pragma: no cover
+
     def __set__(self, row: TModel, value: ColumnValue) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    def delete_raw(self, row: TModel) -> None:
         raise NotImplementedError  # pragma: no cover
 
     def __delete__(self, row: TModel) -> None:
@@ -189,14 +202,23 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     def __delitem__(self, idx: int | slice) -> None:
         raise NotImplementedError  # pragma: no cover
 
-    def cell(self, row_num: int) -> Cell:
+    def cell(self, row_num: int) -> ColumnCell:
         raise NotImplementedError  # pragma: no cover
 
-    def cell0(self, idx: int) -> Cell:
+    def cell0(self, idx: int) -> ColumnCell:
         raise NotImplementedError  # pragma: no cover
 
     @property
-    def cells(self) -> typing.Sequence[Cell]:
+    def cells(self) -> typing.Sequence[ColumnCell]:
+        raise NotImplementedError  # pragma: no cover
+
+    def get_raw(self, row_num: int) -> CellValue:
+        raise NotImplementedError  # pragma: no cover
+
+    def set_raw(self, row_num: int, raw: CellValue) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    def delete_raw(self, row_num: int) -> None:
         raise NotImplementedError  # pragma: no cover
 
 

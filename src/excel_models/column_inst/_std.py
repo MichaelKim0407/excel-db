@@ -5,7 +5,7 @@ from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 
 from ._base import BaseExcelColumn
-from ..typing import TTable, TColumnDef
+from ..typing import TTable, TColumnDef, CellValue
 
 
 class ExcelColumn(BaseExcelColumn):
@@ -48,3 +48,12 @@ class ExcelColumn(BaseExcelColumn):
     @property
     def cells(self) -> typing.Sequence[Cell]:
         return self.table.ws[self.col_letter][self.table.get_row_num(-1):]
+
+    def get_raw(self, row_num: int) -> CellValue:
+        return self.cell(row_num).value
+
+    def set_raw(self, row_num: int, raw: CellValue) -> None:
+        self.cell(row_num).value = raw
+
+    def delete_raw(self, row_num: int) -> None:
+        self.cell(row_num).value = None

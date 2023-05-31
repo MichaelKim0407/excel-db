@@ -16,7 +16,7 @@ class User(ExcelModel):
     name = StringColumn(validators=(required,))
 
     @name.validator
-    def name(self, value: str, cell):
+    def name(self, value: str):
         if not value[0].isalpha():
             raise ValidationError(value)
 
