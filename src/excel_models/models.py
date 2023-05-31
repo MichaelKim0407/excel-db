@@ -77,4 +77,4 @@ class ExcelModel(AbstractModel, metaclass=CollectorMeta):
 
     @property
     def cells(self) -> typing.Sequence[Cell]:
-        return self.table.ws[self.row_num]
+        return self.table.row(self.row_num)

@@ -174,6 +174,12 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     def cell(self, row_num: int, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
 
+    def row(self, row_num: int) -> typing.Sequence[Cell]:
+        raise NotImplementedError  # pragma: no cover
+
+    def col(self, col_num: int, *, data_only: bool = False) -> typing.Sequence[Cell]:
+        raise NotImplementedError  # pragma: no cover
+
     def new(self) -> TModel:
         raise NotImplementedError  # pragma: no cover
 

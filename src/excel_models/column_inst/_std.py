@@ -2,7 +2,6 @@ import typing
 from functools import cached_property
 
 from openpyxl.cell import Cell
-from openpyxl.utils import get_column_letter
 
 from ._base import BaseExcelColumn
 from ..typing import TTable, TColumnDef, CellValue
@@ -20,10 +19,6 @@ class ExcelColumn(BaseExcelColumn):
         super().__init__(table, column_def)
         self.col_num = col_num
         self.concrete = concrete
-
-    @cached_property
-    def col_letter(self) -> str:
-        return get_column_letter(self.col_num)
 
     @cached_property
     def occupied_col_nums(self) -> list[int]:
@@ -47,7 +42,7 @@ class ExcelColumn(BaseExcelColumn):
 
     @property
     def cells(self) -> typing.Sequence[Cell]:
-        return self.table.ws[self.col_letter][self.table.get_row_num(-1):]
+        return self.table.col(self.col_num, data_only=True)
 
     def get_raw(self, row_num: int) -> CellValue:
         return self.cell(row_num).value

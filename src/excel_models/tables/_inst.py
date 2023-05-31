@@ -150,6 +150,16 @@ class ExcelTable(AbstractTable):
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 
+    def row(self, row_num: int) -> typing.Sequence[Cell]:
+        return next(self.ws.iter_rows(min_row=row_num, max_row=row_num))
+
+    def col(self, col_num: int, *, data_only: bool = False) -> typing.Sequence[Cell]:
+        if data_only:
+            min_row = self.title_row + 1
+        else:
+            min_row = None
+        return next(self.ws.iter_cols(min_col=col_num, max_col=col_num, min_row=min_row))
+
     def new(self) -> TModel:
         self.ws.append([])
         row_num = self.ws._current_row  # noqa: pycharm
