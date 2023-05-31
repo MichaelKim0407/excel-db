@@ -14,11 +14,13 @@ class ExcelTableDefinition(
     title_row: int = 1
 
     def __post_init__(self):
+        super().__post_init__()
         if self.table_class is None:
             from ._inst import ExcelTable
             self.table_class = ExcelTable
 
     def _add_to_class(self):
+        super()._add_to_class()
         self.obj_type.tables.append(self)
 
     def make_table(self, db: TDB, ws: Worksheet) -> TTable:

@@ -18,11 +18,13 @@ class Column(
     column_class: typing.Type[TColumn] = None
 
     def __post_init__(self):
+        super().__post_init__()
         if self.column_class is None:
             from excel_models.column_inst import ExcelColumn
             self.column_class = ExcelColumn
 
     def _add_to_class(self):
+        super()._add_to_class()
         self.obj_type.column_defs.append(self)
         if self.alias is not None:
             self.name = self.alias.name
