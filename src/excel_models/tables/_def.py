@@ -12,6 +12,7 @@ class ExcelTableDefinition(
 ):
     table_class: typing.Type[TTable] = None
     title_row: int = 1
+    trim: bool = False
 
     def __post_init__(self):
         super().__post_init__()
@@ -49,6 +50,8 @@ class ExcelTableDefinition(
         if self.name in db.wb:
             ws = db.wb[self.name]
             table = self.make_table(db, ws)
+            if self.trim:
+                table.trim()
             table.find_columns()
         else:
             ws = db.wb.create_sheet(self.name)

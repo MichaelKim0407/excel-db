@@ -174,6 +174,45 @@ class ExcelTable(AbstractTable):
         return next(self.ws.iter_cols(min_col=col_num, max_col=col_num, min_row=min_row))
 
     @property
+    def _max_notnone_col(self) -> int:
+        col = self.max_col
+        while col > 0:
+            for cell in self.col(col):
+                if cell.value is not None:
+                    return col
+            col -= 1
+        return col
+
+    def trim_cols(self) -> int:
+        max_col = self.max_col
+        col = self._max_notnone_col
+        if col == max_col:
+            return col
+        self.ws.delete_cols(col + 1, max_col - col)
+        return col
+
+    @property
+    def _max_notnone_row(self) -> int:
+        row = self.max_row
+        while row > 0:
+            for cell in self.row(row):
+                if cell.value is not None:
+                    return row
+            row -= 1
+        return row
+
+    def trim_rows(self) -> int:
+        max_row = self.max_row
+        row = self._max_notnone_row
+        if row == max_row:
+            return row
+        self.ws.delete_rows(row + 1, max_row - row)
+        return row
+
+    def trim(self) -> tuple[int, int]:
+        return self.trim_cols(), self.trim_rows()
+
+    @property
     def _filter_ref_str(self) -> str:
         return f'A{self.title_row}:{self.max_column_letter}{self.max_row}'
 

@@ -194,6 +194,15 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
 
     # --- utils ---
 
+    def trim_cols(self) -> int:
+        raise NotImplementedError  # pragma: no cover
+
+    def trim_rows(self) -> int:
+        raise NotImplementedError  # pragma: no cover
+
+    def trim(self) -> tuple[int, int]:
+        raise NotImplementedError  # pragma: no cover
+
     def add_filter(self) -> None:
         raise NotImplementedError  # pragma: no cover
 
