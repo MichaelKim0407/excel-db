@@ -1,6 +1,7 @@
 import pytest
 
-from excel_models.columns import Column, ExcelColumn
+from excel_models.column_inst import ExcelColumn
+from excel_models.columns import Column
 from excel_models.db import ExcelDB
 from excel_models.models import ExcelModel
 

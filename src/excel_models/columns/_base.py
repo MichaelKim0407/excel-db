@@ -19,7 +19,7 @@ class Column(
 
     def __post_init__(self):
         if self.column_class is None:
-            from ._inst import ExcelColumn
+            from excel_models.column_inst import ExcelColumn
             self.column_class = ExcelColumn
 
     def _add_to_class(self):
