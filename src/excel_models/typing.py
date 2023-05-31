@@ -24,7 +24,6 @@ class AbstractModel:
 
     table: 'TTable'
     idx: int
-    row_num: int
     values_cache: dict[str, ColumnValue]
 
     @classmethod
@@ -47,6 +46,10 @@ class AbstractModel:
             **kwargs,
     ) -> None:
         raise NotImplementedError  # pragma: no cover
+
+    # --- raw access ---
+
+    row_num: int
 
     def cell(self, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
@@ -171,6 +174,15 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     def __getattr__(self, attr: str) -> 'TColumn':
         raise NotImplementedError  # pragma: no cover
 
+    def new(self) -> TModel:
+        raise NotImplementedError  # pragma: no cover
+
+    # --- raw access ---
+
+    max_col: int
+    max_column_letter: str
+    max_row: int
+
     def cell(self, row_num: int, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
 
@@ -180,7 +192,9 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     def col(self, col_num: int, *, data_only: bool = False) -> typing.Sequence[Cell]:
         raise NotImplementedError  # pragma: no cover
 
-    def new(self) -> TModel:
+    # --- utils ---
+
+    def add_filter(self) -> None:
         raise NotImplementedError  # pragma: no cover
 
 
@@ -207,6 +221,8 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
 
     def __delitem__(self, idx: int | slice) -> None:
         raise NotImplementedError  # pragma: no cover
+
+    # --- raw access ---
 
     def cell(self, row_num: int) -> ColumnCell:
         raise NotImplementedError  # pragma: no cover

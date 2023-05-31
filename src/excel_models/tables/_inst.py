@@ -99,12 +99,8 @@ class ExcelTable(AbstractTable):
                 and self.ws == other.ws
         )
 
-    @property
-    def _max_row(self) -> int:
-        return self.ws.max_row
-
     def __len__(self) -> int:
-        return self._max_row - self.title_row
+        return self.max_row - self.title_row
 
     def get_row_num(self, idx: int) -> int:
         return self.title_row + idx + 1
@@ -147,6 +143,23 @@ class ExcelTable(AbstractTable):
         else:
             raise AttributeError(attr)
 
+    def new(self) -> TModel:
+        self.ws.append([])
+        row_num = self.ws._current_row  # noqa: pycharm
+        return self[self.get_idx(row_num)]
+
+    @property
+    def max_col(self) -> int:
+        return self.ws.max_column
+
+    @property
+    def max_column_letter(self) -> str:
+        return get_column_letter(self.max_col)
+
+    @property
+    def max_row(self) -> int:
+        return self.ws.max_row
+
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 
@@ -160,18 +173,9 @@ class ExcelTable(AbstractTable):
             min_row = None
         return next(self.ws.iter_cols(min_col=col_num, max_col=col_num, min_row=min_row))
 
-    def new(self) -> TModel:
-        self.ws.append([])
-        row_num = self.ws._current_row  # noqa: pycharm
-        return self[self.get_idx(row_num)]
-
-    @property
-    def _max_column_letter(self) -> str:
-        return get_column_letter(self.ws.max_column)
-
     @property
     def _filter_ref_str(self) -> str:
-        return f'A{self.title_row}:{self._max_column_letter}{self._max_row}'
+        return f'A{self.title_row}:{self.max_column_letter}{self.max_row}'
 
-    def add_filter(self):
+    def add_filter(self) -> None:
         self.ws.auto_filter.ref = self._filter_ref_str
