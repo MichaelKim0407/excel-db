@@ -26,17 +26,6 @@ class ExcelColumn(BaseExcelColumn):
             return []
         return [self.col_num]
 
-    def __eq__(self, other: typing.Self) -> bool:
-        if other is None or not isinstance(other, ExcelColumn):
-            return False
-
-        return (
-                self.table == other.table
-                and self.column_def == other.column_def
-                and self.col_num == other.col_num
-                and self.concrete == other.concrete
-        )
-
     def cell(self, row_num: int) -> Cell:
         return self.table.cell(row_num, self.col_num)
 
