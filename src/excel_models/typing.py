@@ -171,8 +171,8 @@ TTable = typing.TypeVar('TTable', bound=AbstractTable)
 class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     table: TTable
     column_def: TColumnDef
-    col_num: int
-    concrete: bool
+
+    occupied_col_nums: list[int]
 
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover

@@ -69,11 +69,10 @@ class ExcelTable(AbstractTable):
     def _check_found_columns(self):
         col_nums = set()
         for column in self.columns:
-            if not column.concrete:
-                continue
-            if column.col_num in col_nums:
-                raise DuplicateColumn(f'{column.column_def.name} on {column.col_num}')
-            col_nums.add(column.col_num)
+            for n in column.occupied_col_nums:
+                if n in col_nums:
+                    raise DuplicateColumn(f'{column.column_def.name} on {n}')
+                col_nums.add(n)
 
     def init_columns(self):
         self._clear_cache()
