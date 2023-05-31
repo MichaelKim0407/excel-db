@@ -2,7 +2,6 @@ import typing
 
 from openpyxl.cell import Cell
 
-from ..exceptions import DuplicateColumn, ColumnNotFound
 from ..typing import AbstractColumnDefinition, TModel, TTable, TColumn, TColumnDef, CellValue, ColumnValue
 from ..utils.descriptors import BasePropertyDescriptor
 
@@ -40,14 +39,6 @@ class Column(
         title = table.get_title(col_num)
         if title != self.name:
             return None
-
-        if self.alias is None:
-            try:
-                table.get_by_col_num(col_num)
-            except ColumnNotFound:
-                pass
-            else:
-                raise DuplicateColumn(self.name)
 
         return self.make_column(table, col_num)
 

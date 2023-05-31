@@ -4,7 +4,7 @@ from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..exceptions import ColumnNotFound
+from ..exceptions import ColumnNotFound, DuplicateColumn
 from ..typing import AbstractTable, TDB, TModel, TTableDef, TColumn
 
 
@@ -63,6 +63,17 @@ class ExcelTable(AbstractTable):
             if column_def.attr in self.columns_cache:
                 continue
             self.not_found[column_def.attr] = column_def
+
+        self._check_found_columns()
+
+    def _check_found_columns(self):
+        col_nums = set()
+        for column in self.columns:
+            if not column.concrete:
+                continue
+            if column.col_num in col_nums:
+                raise DuplicateColumn(f'{column.column_def.name} on {column.col_num}')
+            col_nums.add(column.col_num)
 
     def init_columns(self):
         self._clear_cache()
@@ -136,12 +147,6 @@ class ExcelTable(AbstractTable):
             return self.columns_cache[attr]
         else:
             raise AttributeError(attr)
-
-    def get_by_col_num(self, col_num: int) -> TColumn:
-        for column in self.columns:
-            if column.concrete and column.col_num == col_num:
-                return column
-        raise ColumnNotFound(f'col_num = {col_num}')
 
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
