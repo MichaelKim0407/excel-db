@@ -14,7 +14,7 @@ class ExcelColumn(BaseExcelColumn):
             column_def: TColumnDef,
             col_num: int,
             *,
-            concrete: bool,
+            concrete: bool = True,
     ):
         super().__init__(table, column_def)
         self.col_num = col_num

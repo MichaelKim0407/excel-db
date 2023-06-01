@@ -19,17 +19,9 @@ class Column(BaseColumnDefinition):
         if self.alias is not None:
             self.name = self.alias.name
 
-    def make_column(self, table: TTable, col_num: int) -> TColumn:
-        return self.column_class(
-            table,
-            self,
-            col_num,
-            concrete=self.alias is None,
-        )
-
     def _make_alias(self, table: TTable) -> TColumn | None:
         column = getattr(table, self.alias.attr)
-        return self.make_column(table, column.col_num)
+        return self.column_class(table, self, column.col_num, concrete=False)
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
@@ -39,11 +31,11 @@ class Column(BaseColumnDefinition):
         if self.alias is not None:
             return self._make_alias(table)
 
-        return self.make_column(table, col_num)
+        return self.column_class(table, self, col_num)
 
     def init_column(self, table: TTable, col_num: int) -> tuple[TColumn, int]:
         if self.alias is not None:
             return self._make_alias(table), 0
 
         table.set_title(col_num, self.name)
-        return self.make_column(table, col_num), 1
+        return self.column_class(table, self, col_num), 1

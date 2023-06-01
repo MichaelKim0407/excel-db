@@ -75,9 +75,6 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def __set_name__(self, model: typing.Type[TModel], attr: str):
         raise NotImplementedError  # pragma: no cover
 
-    def make_column(self, table: 'TTable', col_num: int) -> 'TColumn':
-        raise NotImplementedError  # pragma: no cover
-
     def match_column(self, table: 'TTable', col_num: int) -> typing.Optional['TColumn']:
         raise NotImplementedError  # pragma: no cover
 
