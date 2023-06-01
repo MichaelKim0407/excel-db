@@ -160,6 +160,10 @@ class ExcelTable(AbstractTable):
     def max_row(self) -> int:
         return self.ws.max_row
 
+    @property
+    def data_rows(self) -> typing.Iterable[int]:
+        return range(self.title_row + 1, self.max_row + 1)
+
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 

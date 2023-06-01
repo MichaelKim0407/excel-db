@@ -185,6 +185,7 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     max_col: int
     max_column_letter: str
     max_row: int
+    data_rows: typing.Iterable[int]
 
     def cell(self, row_num: int, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
@@ -217,7 +218,7 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     table: TTable
     column_def: TColumnDef
 
-    occupied_col_nums: list[int]
+    occupied_col_nums: typing.Iterable[int]
 
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover

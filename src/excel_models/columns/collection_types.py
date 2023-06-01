@@ -3,21 +3,13 @@ import typing
 
 from returns import returns
 
-from excel_models.typing import TColumnDef
-from ._std import Column
+from ._container import BaseContainer
 from .basic_types import BaseTypedColumn
 
 
-class ArrayColumn(BaseTypedColumn):
+class ArrayColumn(BaseContainer, BaseTypedColumn):
     delimiter: str = '\n'
     strip: bool = False
-    inner_column_class: typing.Type[TColumnDef] = Column
-    inner: TColumnDef = None
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.inner is None:
-            self.inner = self.inner_column_class()
 
     def split(self, value: str) -> list[str]:
         return value.split(self.delimiter)

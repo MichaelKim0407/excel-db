@@ -21,10 +21,10 @@ class ExcelColumn(BaseExcelColumn):
         self.concrete = concrete
 
     @cached_property
-    def occupied_col_nums(self) -> list[int]:
+    def occupied_col_nums(self) -> typing.Collection[int]:
         if not self.concrete:
-            return []
-        return [self.col_num]
+            return set()
+        return {self.col_num}
 
     def cell(self, row_num: int) -> Cell:
         return self.table.cell(row_num, self.col_num)
