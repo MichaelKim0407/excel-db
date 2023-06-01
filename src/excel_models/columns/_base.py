@@ -22,7 +22,7 @@ class BaseColumnDefinition(
     def get_column(self, table: TTable) -> TColumn:
         return getattr(table, self.attr)
 
-    def _to_python(self, raw: CellValue) -> ColumnValue:
+    def to_python(self, raw: CellValue) -> ColumnValue:
         return raw
 
     def get_raw(self, row: TModel) -> CellValue:
@@ -30,7 +30,7 @@ class BaseColumnDefinition(
 
     def _get_default(self, row: TModel) -> ColumnValue:
         raw = self.get_raw(row)
-        return self._to_python(raw)
+        return self.to_python(raw)
 
     validators = ()
 
@@ -80,14 +80,14 @@ class BaseColumnDefinition(
         else:
             return self._get_nocache(row)
 
-    def _from_python(self, value: ColumnValue) -> CellValue:
+    def from_python(self, value: ColumnValue) -> CellValue:
         return value
 
     def set_raw(self, row: TModel, raw: CellValue) -> None:
         self.get_column(row.table).set_raw(row.row_num, raw)
 
     def _set_default(self, row: TModel, value: ColumnValue) -> None:
-        raw = self._from_python(value)
+        raw = self.from_python(value)
         self.set_raw(row, raw)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:

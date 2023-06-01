@@ -3,47 +3,42 @@ import typing
 
 from returns import returns
 
+from excel_models.typing import TColumnDef
 from ._std import Column
 from .basic_types import BaseTypedColumn
 
 
 class ArrayColumn(BaseTypedColumn):
-    delimiter = '\n'
-    strip = False
-    inner_column_class = Column
+    delimiter: str = '\n'
+    strip: bool = False
+    inner_column_class: typing.Type[TColumnDef] = Column
+    inner: TColumnDef = None
 
-    def __init__(self, *, inner: Column = None, **kwargs):
-        super().__init__(**kwargs)
-        if inner is None:
-            inner = self.inner_column_class()
-        self.inner = inner
+    def __post_init__(self):
+        super().__post_init__()
+        if self.inner is None:
+            self.inner = self.inner_column_class()
 
-    def _split(self, value: str) -> list[str]:
+    def split(self, value: str) -> list[str]:
         return value.split(self.delimiter)
-
-    def _inner_to_python(self, raw):
-        return self.inner._to_python(raw)  # noqa: pycharm
 
     @returns(tuple)
     def _convert_to_python(self, raw):
         if not isinstance(raw, str):
-            yield self._inner_to_python(raw)
+            yield self.inner.to_python(raw)
             return
 
-        for item in self._split(raw):
+        for item in self.split(raw):
             if self.strip:
                 item = item.strip()
-            yield self._inner_to_python(item)
+            yield self.inner.to_python(item)
 
-    def _join(self, value: typing.Iterable[str]) -> str:
+    def join(self, value: typing.Iterable[str]) -> str:
         return self.delimiter.join(value)
 
-    def _inner_from_python(self, value):
-        return self.inner._from_python(value)  # noqa: pycharm
-
     def _convert_from_python(self, value):
-        return self._join(
-            self._inner_from_python(item)
+        return self.join(
+            self.inner.from_python(item)
             for item in value
         )
 
