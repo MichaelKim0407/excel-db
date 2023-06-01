@@ -86,6 +86,8 @@ class ExcelTable(AbstractTable):
             self.columns_cache[column_def.attr] = column
             col_num += width
 
+        self._check_found_columns()
+
     def get_title(self, col_num: int) -> str:
         return self.ws.cell(self.title_row, col_num).value
 
