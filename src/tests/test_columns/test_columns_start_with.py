@@ -4,6 +4,7 @@ from excel_models.column_inst.map import ExcelColumnMap
 from excel_models.columns.basic_types import IntColumn
 from excel_models.columns.multi import ColumnsStartWith
 from excel_models.db import ExcelDB
+from excel_models.exceptions import DuplicateColumn
 from excel_models.models import ExcelModel
 
 
@@ -61,3 +62,11 @@ def test_write(db):
     assert db.numbers2.cell(2, 1).value == 1
     assert db.numbers2.cell(2, 2).value == 2
     assert db.numbers2.cell(2, 3).value == 3
+
+
+def test_duplicate_columns(lazy_init_excel):
+    excel = lazy_init_excel('numbers', ['number1', 'number1', 'number3'], [1, 2, 3], [4, 5, '6'], ['7', 8, 9])
+    db = MyDB(excel)
+    with pytest.raises(DuplicateColumn) as ex:
+        _ = db.numbers
+    assert 'numbers[1]' in str(ex.value)

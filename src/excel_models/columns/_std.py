@@ -1,3 +1,4 @@
+from excel_models.exceptions import DuplicateColumn
 from excel_models.typing import TTable, TColumnDef, TColumn
 from ._base import BaseColumnDefinition
 
@@ -27,6 +28,9 @@ class Column(BaseColumnDefinition):
         title = table.get_title(col_num)
         if title != self.name:
             return None
+
+        if self.attr in table.columns_cache:
+            raise DuplicateColumn(f'Multiple columns matching definition {self.attr}')
 
         if self.alias is not None:
             return self._make_alias(table)

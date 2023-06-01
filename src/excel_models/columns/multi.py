@@ -2,6 +2,7 @@ import typing
 
 from returns import returns
 
+from excel_models.exceptions import DuplicateColumn
 from excel_models.typing import TTable, TColumn
 from ._container import BaseContainer
 
@@ -55,6 +56,8 @@ class ColumnsStartWith(BaseContainer):
 
         if self.attr in table.columns_cache:
             column = table.columns_cache[self.attr]
+            if key in column.col_map:
+                raise DuplicateColumn(f'Multiple columns matching definition {self.attr}[{key}]')
             column.col_map[key] = col_num
         else:
             return self.column_class(table, self, {key: col_num})
