@@ -2,7 +2,7 @@ import typing
 
 from openpyxl.cell import Cell
 
-from ..typing import AbstractColumn, TTable, TColumnDef, ColumnValue
+from excel_models.typing import AbstractColumn, TTable, TColumnDef, ColumnValue
 
 
 class BaseExcelColumn(AbstractColumn):

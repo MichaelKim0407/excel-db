@@ -3,8 +3,8 @@ from functools import cached_property
 
 from openpyxl.cell import Cell
 
+from excel_models.typing import TTable, TColumnDef, CellValue
 from ._base import BaseExcelColumn
-from ..typing import TTable, TColumnDef, CellValue
 
 
 class ExcelColumn(BaseExcelColumn):

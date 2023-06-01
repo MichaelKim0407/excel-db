@@ -1,7 +1,7 @@
 from datetime import datetime
 
+from excel_models.typing import CellValue, ColumnValue
 from ._std import Column
-from ..typing import CellValue, ColumnValue
 
 
 class BaseTypedColumn(Column):

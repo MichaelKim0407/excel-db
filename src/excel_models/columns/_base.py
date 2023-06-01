@@ -1,11 +1,11 @@
 import typing
 
-from ..typing import (
+from excel_models.typing import (
     AbstractColumnDefinition,
     TModel, TTable, TColumn,
     CellValue, ColumnValue,
 )
-from ..utils.descriptors import BasePropertyDescriptor
+from excel_models.utils.descriptors import BasePropertyDescriptor
 
 
 class BaseColumnDefinition(

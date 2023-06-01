@@ -2,8 +2,8 @@ import typing
 
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..typing import AbstractTableDefinition, TDB, TTable
-from ..utils.descriptors import BasePropertyDescriptor
+from excel_models.typing import AbstractTableDefinition, TDB, TTable
+from excel_models.utils.descriptors import BasePropertyDescriptor
 
 
 class ExcelTableDefinition(

@@ -4,8 +4,8 @@ from functools import cached_property
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 
-from .typing import AbstractDB, TTableDef
-from .utils.class_collector import CollectorMeta, ListCollector
+from excel_models.typing import AbstractDB, TTableDef
+from excel_models.utils.class_collector import CollectorMeta, ListCollector
 
 
 class ExcelDB(AbstractDB, metaclass=CollectorMeta):

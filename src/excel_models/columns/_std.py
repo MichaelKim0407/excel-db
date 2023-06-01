@@ -1,5 +1,5 @@
+from excel_models.typing import TTable, TColumnDef, TColumn
 from ._base import BaseColumnDefinition
-from ..typing import TTable, TColumnDef, TColumn
 
 
 class Column(BaseColumnDefinition):

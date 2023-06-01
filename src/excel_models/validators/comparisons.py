@@ -1,5 +1,5 @@
-from . import AbstractValueValidator
-from ..exceptions import ValidationError
+from excel_models.exceptions import ValidationError
+from ._base import AbstractValueValidator
 
 
 class AbstractComparisonValidator(AbstractValueValidator):

@@ -4,8 +4,8 @@ from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from ..exceptions import ColumnNotFound, DuplicateColumn
-from ..typing import AbstractTable, TDB, TModel, TTableDef, TColumn
+from excel_models.exceptions import ColumnNotFound, DuplicateColumn
+from excel_models.typing import AbstractTable, TDB, TModel, TTableDef, TColumn
 
 
 class ExcelTable(AbstractTable):

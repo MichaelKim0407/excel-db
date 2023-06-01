@@ -3,8 +3,8 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
-from .typing import AbstractModel, TColumnDef, TTableDef, TTable, ColumnValue
-from .utils.class_collector import CollectorMeta, ListCollector
+from excel_models.typing import AbstractModel, TColumnDef, TTableDef, TTable, ColumnValue
+from excel_models.utils.class_collector import CollectorMeta, ListCollector
 
 
 class ExcelModel(AbstractModel, metaclass=CollectorMeta):
@@ -14,7 +14,7 @@ class ExcelModel(AbstractModel, metaclass=CollectorMeta):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls.table_def_class is None:
-            from .tables import ExcelTableDefinition
+            from excel_models.tables import ExcelTableDefinition
             cls.table_def_class = ExcelTableDefinition
 
     @classmethod
