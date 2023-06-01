@@ -14,6 +14,9 @@ class BaseExcelColumn(AbstractColumn):
         self.table = table
         self.column_def = column_def
 
+    def check(self) -> None:
+        pass
+
     def __eq__(self, other: typing.Self) -> bool:
         if other is None or not isinstance(other, BaseExcelColumn):
             return False

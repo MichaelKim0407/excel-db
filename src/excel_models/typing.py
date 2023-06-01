@@ -231,6 +231,9 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     table: TTable
     column_def: TColumnDef
 
+    def check(self) -> None:
+        raise NotImplementedError  # pragma: no cover
+
     def occupies(self, col_num: int) -> bool:
         raise NotImplementedError  # pragma: no cover
 

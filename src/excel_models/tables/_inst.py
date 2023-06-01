@@ -40,6 +40,30 @@ class ExcelTable(AbstractTable):
         self.not_found.clear()
         self.not_defined.clear()
 
+    def _check_each_column(self):
+        for column in self.columns:
+            column.check()
+
+    def _check_columns_overlap(self):
+        for cell in self.row(self.title_row):
+            concrete_columns = []
+            for column in self.columns:
+                if column.occupies(cell.column):
+                    concrete_columns.append(column)
+            if len(concrete_columns) == 1:
+                continue
+            if len(concrete_columns) == 0:
+                self.not_defined.append(cell)
+                continue
+            raise OverlapColumn(
+                f"Multiple concrete columns defined on col {cell.column} '{cell.value}': "
+                + ', '.join(c.column_def.attr for c in concrete_columns),
+            )
+
+    def _check_columns(self):
+        self._check_each_column()
+        self._check_columns_overlap()
+
     def find_columns(self):
         self._clear_cache()
 
@@ -59,23 +83,7 @@ class ExcelTable(AbstractTable):
                 continue
             self.not_found[column_def.attr] = column_def
 
-        self._check_found_columns()
-
-    def _check_found_columns(self):
-        for cell in self.row(self.title_row):
-            concrete_columns = []
-            for column in self.columns:
-                if column.occupies(cell.column):
-                    concrete_columns.append(column)
-            if len(concrete_columns) == 1:
-                continue
-            if len(concrete_columns) == 0:
-                self.not_defined.append(cell)
-                continue
-            raise OverlapColumn(
-                f"Multiple concrete columns defined on col {cell.column} '{cell.value}': "
-                + ', '.join(c.column_def.attr for c in concrete_columns),
-            )
+        self._check_columns()
 
     def init_columns(self):
         self._clear_cache()
@@ -86,7 +94,7 @@ class ExcelTable(AbstractTable):
             self.columns_cache[column_def.attr] = column
             col_num += width
 
-        self._check_found_columns()
+        self._check_columns()
 
     def get_title(self, col_num: int) -> str:
         return self.ws.cell(self.title_row, col_num).value
