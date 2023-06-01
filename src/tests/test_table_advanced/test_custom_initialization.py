@@ -21,6 +21,6 @@ def test_custom_init(tmp_path):
     tmp_excel_file = str(tmp_path / 'db.xlsx')
     db = MyDB(tmp_excel_file)
     _ = db.users
-    assert db.wb['users'].cell(1, 1).value == 'hello world'
-    assert db.wb['users'].cell(2, 1).value == 'id'
-    assert db.wb['users'].cell(2, 2).value == 'name'
+    assert db.users.cell(1, 1).value == 'hello world'
+    assert db.users.cell(2, 1).value == 'id'
+    assert db.users.cell(2, 2).value == 'name'

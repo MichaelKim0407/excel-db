@@ -24,7 +24,7 @@ def test_copy_sheet(db, tmp_excel_data):
     db.accounts = db.users
     assert set(db.wb.sheetnames) == {'users', 'accounts'}
     assert db.accounts.ws.title == 'accounts'
-    assert db.wb['accounts'].cell(2, 1).value == tmp_excel_data[0][0]
+    assert db.accounts.cell(2, 1).value == tmp_excel_data[0][0]
 
 
 def test_overwrite_existing(db, tmp_excel_data):
@@ -32,4 +32,4 @@ def test_overwrite_existing(db, tmp_excel_data):
     db.accounts = db.users
     assert set(db.wb.sheetnames) == {'users', 'accounts'}
     assert db.accounts.ws.title == 'accounts'
-    assert db.wb['accounts'].cell(2, 1).value == tmp_excel_data[0][0]
+    assert db.accounts.cell(2, 1).value == tmp_excel_data[0][0]

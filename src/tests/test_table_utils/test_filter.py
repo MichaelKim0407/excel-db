@@ -21,4 +21,4 @@ def db(tmp_excel_file):
 
 def test_add_filter(db):
     db.users.add_filter()
-    assert db.wb['users'].auto_filter.ref == 'A1:B4'
+    assert db.users.ws.auto_filter.ref == 'A1:B4'

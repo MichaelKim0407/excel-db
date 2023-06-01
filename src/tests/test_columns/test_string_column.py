@@ -29,8 +29,8 @@ def test_get(db):
 
 def test_set(db):
     db.users.name[3] = 'Chris'
-    assert db.wb['users'].cell(5, 1).value == 'Chris'
+    assert db.users.cell(5, 1).value == 'Chris'
     db.users.name[4] = 10
-    assert db.wb['users'].cell(6, 1).value == '10'
+    assert db.users.cell(6, 1).value == '10'
     db.users.name[0] = None
-    assert db.wb['users'].cell(2, 1).value is None
+    assert db.users.cell(2, 1).value is None

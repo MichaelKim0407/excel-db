@@ -31,4 +31,4 @@ def test_get(db):
 
 def test_set(db):
     db.users[0].data = 'hello world'
-    assert db.wb['users'].cell(2, 1).value == '"hello world"'
+    assert db.users.cell(2, 1).value == '"hello world"'

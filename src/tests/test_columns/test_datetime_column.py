@@ -38,9 +38,9 @@ def test_error(db):
 def test_set(db):
     today = datetime.today()
     db.users[3].last_login = today
-    assert db.wb['users'].cell(5, 1).value == today
+    assert db.users.cell(5, 1).value == today
     db.users[4].last_login = '2023/4/1'
-    assert db.wb['users'].cell(6, 1).value == datetime(2023, 4, 1)
+    assert db.users.cell(6, 1).value == datetime(2023, 4, 1)
 
 
 def test_format_not_provided(db):

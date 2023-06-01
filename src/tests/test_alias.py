@@ -39,4 +39,4 @@ def test_duplicate_column(db):
 
 def test_init_table(db):
     _ = db.users2
-    assert [cell.value for cell in db.wb['users2'][1]] == ['name']
+    assert [cell.value for cell in db.users2.row(1)] == ['name']

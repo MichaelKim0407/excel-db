@@ -52,9 +52,9 @@ def test_get(db):
 
 def test_set(db):
     db.users[1].name = ['Chris']
-    assert db.wb['users'].cell(3, 1).value == 'Chris'
+    assert db.users.cell(3, 1).value == 'Chris'
 
 
 def test_del(db):
     del db.users[2].name
-    assert db.wb['users'].cell(4, 1).value == ''
+    assert db.users.cell(4, 1).value == ''
