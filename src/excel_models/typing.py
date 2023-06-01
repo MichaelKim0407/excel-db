@@ -190,10 +190,23 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
     def cell(self, row_num: int, col_num: int) -> Cell:
         raise NotImplementedError  # pragma: no cover
 
-    def row(self, row_num: int) -> typing.Sequence[Cell]:
+    def row(
+            self,
+            row_num: int,
+            *,
+            min_col: int = None,
+            max_col: int = None,
+    ) -> typing.Sequence[Cell]:
         raise NotImplementedError  # pragma: no cover
 
-    def col(self, col_num: int, *, data_only: bool = False) -> typing.Sequence[Cell]:
+    def col(
+            self,
+            col_num: int,
+            *,
+            min_row: int = None,
+            max_row: int = None,
+            data_only: bool = False,
+    ) -> typing.Sequence[Cell]:
         raise NotImplementedError  # pragma: no cover
 
     # --- utils ---

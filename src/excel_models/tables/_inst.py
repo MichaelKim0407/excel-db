@@ -170,15 +170,40 @@ class ExcelTable(AbstractTable):
     def cell(self, row_num: int, col_num: int) -> Cell:
         return self.ws.cell(row_num, col_num)
 
-    def row(self, row_num: int) -> typing.Sequence[Cell]:
-        return next(self.ws.iter_rows(min_row=row_num, max_row=row_num))
+    def row(
+            self,
+            row_num: int,
+            *,
+            min_col: int = None,
+            max_col: int = None,
+    ) -> typing.Sequence[Cell]:
+        return next(self.ws.iter_rows(
+            min_row=row_num,
+            max_row=row_num,
+            min_col=min_col,
+            max_col=max_col,
+        ))
 
-    def col(self, col_num: int, *, data_only: bool = False) -> typing.Sequence[Cell]:
+    def col(
+            self,
+            col_num: int,
+            *,
+            min_row: int = None,
+            max_row: int = None,
+            data_only: bool = False,
+    ) -> typing.Sequence[Cell]:
         if data_only:
-            min_row = self.title_row + 1
-        else:
-            min_row = None
-        return next(self.ws.iter_cols(min_col=col_num, max_col=col_num, min_row=min_row))
+            data_row = self.title_row + 1
+            if min_row is None:
+                min_row = data_row
+            else:
+                min_row = max(min_row, data_row)
+        return next(self.ws.iter_cols(
+            min_col=col_num,
+            max_col=col_num,
+            min_row=min_row,
+            max_row=max_row,
+        ))
 
     @property
     def _max_notnone_col(self) -> int:
