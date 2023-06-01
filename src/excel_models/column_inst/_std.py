@@ -1,5 +1,4 @@
 import typing
-from functools import cached_property
 
 from openpyxl.cell import Cell
 
@@ -20,11 +19,10 @@ class ExcelColumn(BaseExcelColumn):
         self.col_num = col_num
         self.concrete = concrete
 
-    @cached_property
-    def occupied_col_nums(self) -> typing.Collection[int]:
+    def occupies(self, col_num: int) -> bool:
         if not self.concrete:
-            return set()
-        return {self.col_num}
+            return False
+        return col_num == self.col_num
 
     def cell(self, row_num: int) -> Cell:
         return self.table.cell(row_num, self.col_num)

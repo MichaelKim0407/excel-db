@@ -4,8 +4,8 @@ from openpyxl.cell import Cell
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from excel_models.exceptions import ColumnNotFound, DuplicateColumn
-from excel_models.typing import AbstractTable, TDB, TModel, TTableDef, TColumn
+from excel_models.exceptions import ColumnNotFound, OverlapColumn
+from excel_models.typing import AbstractTable, TDB, TModel, TTableDef, TColumn, TColumnDef
 
 
 class ExcelTable(AbstractTable):
@@ -19,9 +19,9 @@ class ExcelTable(AbstractTable):
         self.table_def = table_def
         self.ws = ws
 
-        self.columns_cache = {}
-        self.not_found = {}
-        self.not_defined = []
+        self.columns_cache: dict[str, TColumn] = {}
+        self.not_found: dict[str, TColumnDef] = {}
+        self.not_defined: list[Cell] = []
 
     @property
     def model(self) -> typing.Type[TModel]:
@@ -43,21 +43,16 @@ class ExcelTable(AbstractTable):
     def find_columns(self):
         self._clear_cache()
 
-        for cell in self.ws[self.title_row]:
+        for cell in self.row(self.title_row):
             if cell.value is None:
                 continue
 
-            defined = False
             for column_def in self.model.column_defs:
                 column = column_def.match_column(self, cell.column)
                 if column is None:
                     continue
                 self.columns_cache[column_def.attr] = column
-                defined = True
                 # There may be multiple column definitions to the same Excel column, so we keep going.
-
-            if not defined:
-                self.not_defined.append(cell.value)
 
         for column_def in self.model.column_defs:
             if column_def.attr in self.columns_cache:
@@ -67,12 +62,20 @@ class ExcelTable(AbstractTable):
         self._check_found_columns()
 
     def _check_found_columns(self):
-        col_nums = set()
-        for column in self.columns:
-            for n in column.occupied_col_nums:
-                if n in col_nums:
-                    raise DuplicateColumn(f'{column.column_def.name} on {n}')
-                col_nums.add(n)
+        for cell in self.row(self.title_row):
+            concrete_columns = []
+            for column in self.columns:
+                if column.occupies(cell.column):
+                    concrete_columns.append(column)
+            if len(concrete_columns) == 1:
+                continue
+            if len(concrete_columns) == 0:
+                self.not_defined.append(cell)
+                continue
+            raise OverlapColumn(
+                f"Multiple concrete columns defined on col {cell.column} '{cell.value}': "
+                + ', '.join(c.column_def.attr for c in concrete_columns),
+            )
 
     def init_columns(self):
         self._clear_cache()

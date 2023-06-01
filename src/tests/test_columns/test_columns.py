@@ -4,7 +4,7 @@ from excel_models.column_inst.array import ExcelColumnArray
 from excel_models.columns.basic_types import IntColumn
 from excel_models.columns.multi import Columns
 from excel_models.db import ExcelDB
-from excel_models.exceptions import DuplicateColumn
+from excel_models.exceptions import OverlapColumn
 from excel_models.models import ExcelModel
 
 
@@ -72,6 +72,6 @@ def test_write(db):
     assert db.numbers2.cell(2, 3).value == 3
 
 
-def test_column_conflict(db):
-    with pytest.raises(DuplicateColumn):
+def test_column_overlap(db):
+    with pytest.raises(OverlapColumn):
         _ = db.err_numbers

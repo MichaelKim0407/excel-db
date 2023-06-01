@@ -21,12 +21,15 @@ class ExcelColumnArray(BaseExcelColumn):
         self.width = width
 
     @cached_property
-    def occupied_col_nums(self) -> typing.Sequence[int]:
+    def col_nums(self) -> typing.Sequence[int]:
         return tuple(range(self.col_num, self.col_num + self.width))
+
+    def occupies(self, col_num: int) -> bool:
+        return col_num in self.col_nums
 
     @returns(tuple)
     def cell(self, row_num: int) -> typing.Sequence[Cell]:
-        for col_num in self.occupied_col_nums:
+        for col_num in self.col_nums:
             yield self.table.cell(row_num, col_num)
 
     @property

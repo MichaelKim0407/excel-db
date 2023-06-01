@@ -218,7 +218,8 @@ class AbstractColumn(typing.Generic[TTable, TColumnDef]):
     table: TTable
     column_def: TColumnDef
 
-    occupied_col_nums: typing.Iterable[int]
+    def occupies(self, col_num: int) -> bool:
+        raise NotImplementedError  # pragma: no cover
 
     def __eq__(self, other: typing.Self) -> bool:
         raise NotImplementedError  # pragma: no cover

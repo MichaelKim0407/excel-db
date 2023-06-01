@@ -3,7 +3,7 @@ import pytest
 from excel_models.columns.basic_types import StringColumn
 from excel_models.columns.collection_types import ArrayColumn
 from excel_models.db import ExcelDB
-from excel_models.exceptions import DuplicateColumn
+from excel_models.exceptions import OverlapColumn
 from excel_models.models import ExcelModel
 
 
@@ -33,7 +33,7 @@ def db(excel):
 
 
 def test_duplicate_column(db):
-    with pytest.raises(DuplicateColumn):
+    with pytest.raises(OverlapColumn):
         _ = db.users
 
 

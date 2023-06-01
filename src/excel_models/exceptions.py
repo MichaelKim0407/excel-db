@@ -1,4 +1,4 @@
-class DuplicateColumn(Exception):
+class OverlapColumn(Exception):
     pass
 
 

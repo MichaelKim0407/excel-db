@@ -17,9 +17,8 @@ class ExcelColumnMap(BaseExcelColumn):
         super().__init__(table, column_def)
         self.col_map = col_map
 
-    @property
-    def occupied_col_nums(self) -> typing.Collection[int]:
-        return self.col_map.values()
+    def occupies(self, col_num: int) -> bool:
+        return col_num in self.col_map.values()
 
     @returns(dict)
     def cell(self, row_num: int) -> typing.Mapping[typing.Hashable, Cell]:
