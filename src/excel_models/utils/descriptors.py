@@ -10,10 +10,6 @@ class BasePropertyDescriptor(typing.Generic[Object]):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
-        self.__post_init__()
-
-    def __post_init__(self):
-        pass  # pragma: no cover
 
     def _add_to_class(self):
         pass  # pragma: no cover
