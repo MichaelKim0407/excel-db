@@ -12,7 +12,7 @@ def excel(lazy_init_excel):
 
 class User(ExcelModel):
     id = IntColumn()
-    id2 = IntColumn(name='id', float_strict=False)
+    id2 = IntColumn(alias=id, float_strict=False)
 
 
 class MyDB(ExcelDB):
@@ -37,8 +37,8 @@ def test_get_error(db):
 
 def test_set(db):
     db.users.id[4:] = (5.0, '6')
-    assert db.wb['users'].cell(6, 1).value == 5
-    assert db.wb['users'].cell(7, 1).value == 6
+    assert db.users.cell(6, 1).value == 5
+    assert db.users.cell(7, 1).value == 6
 
 
 def test_non_strict_float(db):

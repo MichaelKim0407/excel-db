@@ -3,57 +3,44 @@ import typing
 
 from returns import returns
 
-from ._base import Column
+from ._container import BaseContainer
 from .basic_types import BaseTypedColumn
 
 
-class ArrayColumn(BaseTypedColumn):
-    delimiter = '\n'
-    strip = False
-    INNER_COLUMN_CLASS = Column
+class ArrayColumn(BaseContainer, BaseTypedColumn):
+    delimiter: str = '\n'
+    strip: bool = False
 
-    def __init__(self, *, inner: Column = None, **kwargs):
-        super().__init__(**kwargs)
-        if inner is None:
-            inner = self.INNER_COLUMN_CLASS()
-        self.inner = inner
-
-    def _split(self, value: str) -> list[str]:
+    def split(self, value: str) -> list[str]:
         return value.split(self.delimiter)
 
-    def _inner_to_python(self, value):
-        return self.inner._to_python(value)  # noqa: pycharm
-
     @returns(tuple)
-    def _convert_to_python(self, value):
-        if not isinstance(value, str):
-            yield self._inner_to_python(value)
+    def _convert_to_python(self, raw):
+        if not isinstance(raw, str):
+            yield self.inner.to_python(raw)
             return
 
-        for item in self._split(value):
+        for item in self.split(raw):
             if self.strip:
                 item = item.strip()
-            yield self._inner_to_python(item)
+            yield self.inner.to_python(item)
 
-    def _join(self, value: typing.Iterable[str]) -> str:
+    def join(self, value: typing.Iterable[str]) -> str:
         return self.delimiter.join(value)
 
-    def _inner_from_python(self, value):
-        return self.inner._from_python(value)  # noqa: pycharm
-
     def _convert_from_python(self, value):
-        return self._join(
-            self._inner_from_python(item)
+        return self.join(
+            self.inner.from_python(item)
             for item in value
         )
 
 
 class JsonColumn(BaseTypedColumn):
-    def _convert_to_python(self, value):
-        if not isinstance(value, str):
-            return value
+    def _convert_to_python(self, raw):
+        if not isinstance(raw, str):
+            return raw
 
-        return json.loads(value)
+        return json.loads(raw)
 
     def _convert_from_python(self, value):
         return json.dumps(value)

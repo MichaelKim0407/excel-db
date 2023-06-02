@@ -27,6 +27,36 @@ def test_table_cell(db):
     assert cell.column == 1
 
 
+def test_table_row(db):
+    cells = db.users.row(2)
+    assert isinstance(cells, (list, tuple))
+    assert len(cells) == 2
+    for col, cell in enumerate(cells, start=1):
+        assert isinstance(cell, Cell)
+        assert cell.row == 2
+        assert cell.column == col
+
+
+def test_table_col(db):
+    cells = db.users.col(1)
+    assert isinstance(cells, (list, tuple))
+    assert len(cells) == 4
+    for row, cell in enumerate(cells, start=1):
+        assert isinstance(cell, Cell)
+        assert cell.row == row
+        assert cell.column == 1
+
+
+def test_table_col_data_only(db):
+    cells = db.users.col(1, data_only=True)
+    assert isinstance(cells, (list, tuple))
+    assert len(cells) == 3
+    for row, cell in enumerate(cells, start=2):
+        assert isinstance(cell, Cell)
+        assert cell.row == row
+        assert cell.column == 1
+
+
 def test_row_cell(db):
     cell = db.users[1].cell(2)
     assert isinstance(cell, Cell)
@@ -52,12 +82,10 @@ def test_row_cells(db):
     cells = db.users[0].cells
     assert isinstance(cells, (list, tuple))
     assert len(cells) == 2
-    assert isinstance(cells[0], Cell)
-    assert cells[0].row == 2
-    assert cells[0].column == 1
-    assert isinstance(cells[1], Cell)
-    assert cells[1].row == 2
-    assert cells[1].column == 2
+    for col, cell in enumerate(cells, start=1):
+        assert isinstance(cell, Cell)
+        assert cell.row == 2
+        assert cell.column == col
 
 
 def test_col_cell(db):
@@ -78,12 +106,7 @@ def test_col_cells(db):
     cells = db.users.name.cells
     assert isinstance(cells, (list, tuple))
     assert len(cells) == 3
-    assert isinstance(cells[0], Cell)
-    assert cells[0].row == 2
-    assert cells[0].column == 2
-    assert isinstance(cells[1], Cell)
-    assert cells[1].row == 3
-    assert cells[1].column == 2
-    assert isinstance(cells[2], Cell)
-    assert cells[2].row == 4
-    assert cells[2].column == 2
+    for row, cell in enumerate(cells, start=2):
+        assert isinstance(cell, Cell)
+        assert cell.row == row
+        assert cell.column == 2

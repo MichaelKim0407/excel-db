@@ -34,6 +34,6 @@ def test_error(db):
 
 def test_set(db):
     db.users.age[3] = '10'
-    assert db.wb['users'].cell(5, 1).value == 10.0
+    assert db.users.cell(5, 1).value == 10.0
     db.users.age[4] = 9.9
-    assert db.wb['users'].cell(6, 1).value == 9.9
+    assert db.users.cell(6, 1).value == 9.9

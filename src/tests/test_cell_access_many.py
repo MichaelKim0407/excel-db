@@ -38,9 +38,9 @@ def test_row_as_dict(db, tmp_excel_columns, tmp_excel_data):
 
 def test_row_set_dict(db):
     db.users[0].set_dict({'name': 'Chris'})
-    assert db.wb['users'].cell(2, 2).value == 'Chris'
+    assert db.users.cell(2, 2).value == 'Chris'
     db.users[1].set_dict(name='Carol')
-    assert db.wb['users'].cell(3, 2).value == 'Carol'
+    assert db.users.cell(3, 2).value == 'Carol'
 
 
 def test_column_iter(db, tmp_excel_data):
@@ -54,11 +54,11 @@ def test_column_slice(db, tmp_excel_data):
 
 def test_column_slice_set(db):
     db.users.name[:2] = ('Chris', 'Carol')
-    assert db.wb['users'].cell(2, 2).value == 'Chris'
-    assert db.wb['users'].cell(3, 2).value == 'Carol'
+    assert db.users.cell(2, 2).value == 'Chris'
+    assert db.users.cell(3, 2).value == 'Carol'
 
 
 def test_column_slice_del(db):
     del db.users.name[1:]
-    assert db.wb['users'].cell(3, 2).value is None
-    assert db.wb['users'].cell(4, 2).value is None
+    assert db.users.cell(3, 2).value is None
+    assert db.users.cell(4, 2).value is None

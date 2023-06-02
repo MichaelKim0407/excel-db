@@ -1,6 +1,5 @@
 import pytest
 
-from excel_models.column_inst import ExcelColumn
 from excel_models.columns import Column
 from excel_models.db import ExcelDB
 from excel_models.models import ExcelModel
@@ -20,8 +19,6 @@ def db(tmp_excel_file):
     return MyDB(tmp_excel_file)
 
 
-def test_column_list(db):
-    assert len(db.users.columns) == 2
-    for column in db.users.columns:
-        assert isinstance(column, ExcelColumn)
-        assert isinstance(column.column_def, Column)
+def test_add_filter(db):
+    db.users.add_filter()
+    assert db.users.ws.auto_filter.ref == 'A1:B4'

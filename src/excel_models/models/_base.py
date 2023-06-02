@@ -3,27 +3,21 @@ import typing
 from openpyxl.cell import Cell
 from returns import returns
 
-from .utils.class_collector import CollectorMeta, ListCollector
+from excel_models.typing import AbstractModel, TColumnDef, TTableDef, TTable, ColumnValue
+from excel_models.utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelModel(metaclass=CollectorMeta):
-    columns: ListCollector['TColumnDef'] = ListCollector()
+class BaseExcelModel(AbstractModel, metaclass=CollectorMeta):
+    column_defs: ListCollector[TColumnDef] = ListCollector()
+    table_def_class: typing.Type[TTableDef]  # assign in subclass
 
     @classmethod
-    def as_table(
-            cls,
-            *,
-            table_def_class: typing.Type['TTableDef'] = None,
-            **kwargs,
-    ) -> 'TTableDef':
-        if table_def_class is None:
-            from .tables import ExcelTableDefinition
-            table_def_class = ExcelTableDefinition
-        return table_def_class(cls, **kwargs)
+    def as_table(cls, **table_def_kwargs) -> TTableDef:
+        return cls.table_def_class(model=cls, **table_def_kwargs)
 
     def __init__(
             self,
-            table: 'TTable',
+            table: TTable,
             idx: int,
             row_num: int,
     ):
@@ -34,7 +28,7 @@ class ExcelModel(metaclass=CollectorMeta):
         self.values_cache = {}
 
     def __eq__(self, other: typing.Self) -> bool:
-        if other is None or not isinstance(other, ExcelModel):
+        if other is None or not isinstance(other, BaseExcelModel):
             return False
 
         return (
@@ -50,16 +44,16 @@ class ExcelModel(metaclass=CollectorMeta):
         return False
 
     @returns(dict)
-    def as_dict(self) -> dict[str, typing.Any]:
-        for column in self.columns:
-            yield column.name, column.__get__(self)
+    def as_dict(self) -> dict[str, ColumnValue]:
+        for column_def in self.column_defs:
+            yield column_def.name, column_def.__get__(self)
 
     def set_dict(
             self,
-            mapping: typing.Mapping[str, typing.Any] = None,
+            mapping: typing.Mapping[str, ColumnValue] = None,
             /,
             **kwargs,
-    ):
+    ) -> None:
         if mapping is not None:
             for k, v in mapping.items():
                 setattr(self, k, v)
@@ -77,11 +71,4 @@ class ExcelModel(metaclass=CollectorMeta):
 
     @property
     def cells(self) -> typing.Sequence[Cell]:
-        return self.table.ws[self.row_num]
-
-
-TModel = typing.TypeVar('TModel', bound=ExcelModel)
-
-if typing.TYPE_CHECKING:
-    from .tables import TTableDef, TTable
-    from .columns import TColumnDef
+        return self.table.row(self.row_num)

@@ -1,34 +1,35 @@
 from datetime import datetime
 
-from ._base import Column
+from excel_models.typing import CellValue, ColumnValue
+from ._std import Column
 
 
 class BaseTypedColumn(Column):
-    def _convert_to_python(self, value):
+    def _convert_to_python(self, raw: CellValue) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
-    def _to_python(self, value):
-        if value is None:
+    def to_python(self, raw: CellValue) -> ColumnValue:
+        if raw is None:
             return None
-        return self._convert_to_python(value)
+        return self._convert_to_python(raw)
 
-    def _convert_from_python(self, value):
+    def _convert_from_python(self, value: ColumnValue) -> CellValue:
         raise NotImplementedError  # pragma: no cover
 
-    def _from_python(self, value):
+    def from_python(self, value: ColumnValue) -> CellValue:
         if value is None:
             return None
         return self._convert_from_python(value)
 
 
 class BaseSimpleTypeColumn(BaseTypedColumn):
-    def _convert(self, value):
+    def _convert(self, value: CellValue | ColumnValue) -> ColumnValue | CellValue:
         raise NotImplementedError  # pragma: no cover
 
-    def _convert_to_python(self, value):
-        return self._convert(value)
+    def _convert_to_python(self, raw: CellValue) -> ColumnValue:
+        return self._convert(raw)
 
-    def _convert_from_python(self, value):
+    def _convert_from_python(self, value: ColumnValue) -> CellValue:
         return self._convert(value)
 
 

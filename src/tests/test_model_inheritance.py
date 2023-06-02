@@ -23,8 +23,8 @@ def db(tmp_excel_file):
 
 
 def test_model_columns():
-    assert len(User.columns) == 2
-    assert [column.name for column in User.columns] == ['id', 'name']
+    assert len(User.column_defs) == 2
+    assert [column_def.name for column_def in User.column_defs] == ['id', 'name']
 
 
 def test_get_by_row(db, tmp_excel_data):
@@ -39,14 +39,14 @@ def test_get_by_col(db, tmp_excel_data):
 
 def test_set_by_row(db):
     db.users[2].id = 100
-    assert db.wb['users'].cell(4, 1).value == 100
+    assert db.users.cell(4, 1).value == 100
     db.users[2].name = 'Chris'
-    assert db.wb['users'].cell(4, 2).value == 'Chris'
+    assert db.users.cell(4, 2).value == 'Chris'
 
 
 def test_set_by_col(db):
     db.users.id[:2] = 50, 51
-    assert db.wb['users'].cell(2, 1).value == 50
-    assert db.wb['users'].cell(3, 1).value == 51
+    assert db.users.cell(2, 1).value == 50
+    assert db.users.cell(3, 1).value == 51
     db.users.name[3] = 'Lucy'
-    assert db.wb['users'].cell(5, 2).value == 'Lucy'
+    assert db.users.cell(5, 2).value == 'Lucy'

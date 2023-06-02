@@ -5,8 +5,9 @@ ObjectType = typing.Type[Object]
 
 
 class BasePropertyDescriptor(typing.Generic[Object]):
+    name: str = None
+
     def __init__(self, **kwargs):
-        self.name = None
         for k, v in kwargs.items():
             setattr(self, k, v)
 

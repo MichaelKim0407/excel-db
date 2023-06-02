@@ -1,34 +1,42 @@
 import typing
 
-from openpyxl.cell import Cell
+from excel_models.typing import (
+    AbstractColumnDefinition,
+    TModel, TTable, TColumn,
+    CellValue, ColumnValue,
+)
+from excel_models.utils.descriptors import BasePropertyDescriptor
 
-from ..models import ExcelModel
-from ..utils.descriptors import BasePropertyDescriptor
 
-
-class Column(BasePropertyDescriptor[ExcelModel]):
+class BaseColumnDefinition(
+    BasePropertyDescriptor[TModel],
+    AbstractColumnDefinition,
+):
     cache: bool = True
+    column_class: typing.Type[TColumn]  # assign in subclass
 
     def _add_to_class(self):
-        self.obj_type.columns.append(self)
+        super()._add_to_class()
+        self.obj_type.column_defs.append(self)
 
-    def _get_col_num(self, row: ExcelModel) -> int:
-        return getattr(row.table, self.attr).col_num
+    def get_column(self, table: TTable) -> TColumn:
+        return getattr(table, self.attr)
 
-    def _get_cell(self, row: ExcelModel) -> Cell:
-        return row.table.ws.cell(row.row_num, self._get_col_num(row))
+    def to_python(self, raw: CellValue) -> ColumnValue:
+        return raw
 
-    def _to_python(self, value):
-        return value
+    def get_raw(self, row: TModel) -> CellValue:
+        return self.get_column(row.table).get_raw(row.row_num)
 
-    def _get_default(self, row: ExcelModel, cell: Cell):
-        return self._to_python(cell.value)
+    def _get_default(self, row: TModel) -> ColumnValue:
+        raw = self.get_raw(row)
+        return self.to_python(raw)
 
     validators = ()
 
-    def _validate(self, row: ExcelModel, value, cell: Cell):
+    def _validate(self, row: TModel, value: ColumnValue) -> None:
         for validator in self.validators:
-            validator(row, value, cell)
+            validator(row, value)
 
     def validator(self, f_validate):
         if isinstance(self.validators, tuple):
@@ -38,33 +46,32 @@ class Column(BasePropertyDescriptor[ExcelModel]):
 
     _f_handle_error = None
 
-    def _handle_error_default(self, row: ExcelModel, cell: Cell, ex: Exception):
+    def _handle_error_default(self, row: TModel, ex: Exception) -> ColumnValue:
         raise
 
     @property
-    def _handle_error_method(self):
+    def _handle_error_method(self) -> typing.Callable:
         if self._f_handle_error is None:
             return self._handle_error_default
         else:
             return self._f_handle_error
 
-    def _handle_error(self, row: ExcelModel, cell: Cell, ex: Exception):
-        return self._handle_error_method(row, cell, ex)  # noqa: pycharm
+    def _handle_error(self, row: TModel, ex: Exception) -> ColumnValue:
+        return self._handle_error_method(row, ex)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
         return self
 
-    def _get_nocache(self, row: ExcelModel):
-        cell = self._get_cell(row)
+    def _get_nocache(self, row: TModel) -> ColumnValue:
         try:
-            value = self._get_method(row, cell)
-            self._validate(row, value, cell)
+            value = self._get_method(row)
+            self._validate(row, value)
             return value
         except Exception as ex:
-            return self._handle_error(row, cell, ex)
+            return self._handle_error(row, ex)
 
-    def _get(self, row: ExcelModel):
+    def _get(self, row: TModel) -> ColumnValue:
         if self.cache:
             if self.attr not in row.values_cache:
                 value = self._get_nocache(row)
@@ -73,27 +80,30 @@ class Column(BasePropertyDescriptor[ExcelModel]):
         else:
             return self._get_nocache(row)
 
-    def _from_python(self, value):
+    def from_python(self, value: ColumnValue) -> CellValue:
         return value
 
-    def _set_default(self, row: ExcelModel, value, cell: Cell):
-        cell.value = self._from_python(value)
+    def set_raw(self, row: TModel, raw: CellValue) -> None:
+        self.get_column(row.table).set_raw(row.row_num, raw)
 
-    def _set(self, row: ExcelModel, value):
-        cell = self._get_cell(row)
-        self._validate(row, value, cell)
-        self._set_method(row, value, cell)
+    def _set_default(self, row: TModel, value: ColumnValue) -> None:
+        raw = self.from_python(value)
+        self.set_raw(row, raw)
+
+    def _set(self, row: TModel, value: ColumnValue) -> None:
+        self._validate(row, value)
+        self._set_method(row, value)
         if self.cache:
             row.values_cache[self.attr] = value
 
-    def _delete_default(self, row: ExcelModel, cell: Cell):
-        cell.value = None
+    def delete_raw(self, row: TModel) -> None:
+        self.get_column(row.table).delete_raw(row.row_num)
 
-    def _delete(self, row: ExcelModel):
-        self._delete_method(row, self._get_cell(row))
+    def _delete_default(self, row: TModel):
+        self.delete_raw(row)
+
+    def _delete(self, row: TModel):
+        self._delete_method(row)
         if self.cache:
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]
-
-
-TColumnDef = typing.TypeVar('TColumnDef', bound=Column)

@@ -1,15 +1,15 @@
 import os
-import typing
 from functools import cached_property
 
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 
-from .utils.class_collector import CollectorMeta, ListCollector
+from excel_models.typing import AbstractDB, TTableDef
+from excel_models.utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelDB(metaclass=CollectorMeta):
-    tables: ListCollector['TTableDef'] = ListCollector()
+class ExcelDB(AbstractDB, metaclass=CollectorMeta):
+    tables: ListCollector[TTableDef] = ListCollector()
 
     MODE_OPEN = 'o'  # open an existing file; FileNotFoundError
     MODE_CREATE = 'n'  # create a new file; FileExistsError
@@ -26,7 +26,7 @@ class ExcelDB(metaclass=CollectorMeta):
         self.filename = filename
         self.mode = mode
 
-        self.ws_cache = {}
+        self.tables_cache = {}
 
     @cached_property
     def wb(self) -> Workbook:
@@ -48,9 +48,3 @@ class ExcelDB(metaclass=CollectorMeta):
 
     def save(self):
         self.save_as(self.filename)
-
-
-TDB = typing.TypeVar('TDB', bound=ExcelDB)
-
-if typing.TYPE_CHECKING:
-    from .tables import TTableDef

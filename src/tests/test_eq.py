@@ -21,7 +21,7 @@ def db(tmp_excel_file):
 
 
 def test_table_eq(db):
-    assert db.users is not db.users
+    assert db.users is db.users  # tables are cached
     assert db.users == db.users
     assert db.users != db.accounts
 

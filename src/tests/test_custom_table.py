@@ -29,5 +29,5 @@ def db(tmp_excel_file):
 
 def test_custom_table(db):
     db.users.add_user(10, 'Mary')
-    assert db.wb['users'].cell(5, 1).value == 10
-    assert db.wb['users'].cell(5, 2).value == 'Mary'
+    assert db.users.cell(5, 1).value == 10
+    assert db.users.cell(5, 2).value == 'Mary'

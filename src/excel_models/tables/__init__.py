@@ -1,4 +1,5 @@
-from ._def import ExcelTableDefinition, TTableDef
-from ._inst import ExcelTable, TTable
+from ._base import BaseExcelTableDefinition
+from ._inst import ExcelTable
+from ._std import ExcelTableDefinition
 
-__all__ = ('ExcelTableDefinition', 'TTableDef', 'ExcelTable', 'TTable')
+__all__ = ('BaseExcelTableDefinition', 'ExcelTable', 'ExcelTableDefinition')

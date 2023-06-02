@@ -23,4 +23,4 @@ def test_delete_sheet(db):
     del db.users
     assert set(db.wb.sheetnames) == set()
     _ = db.users
-    assert db.wb['users'].max_row == 1
+    assert db.users.max_row == 1
