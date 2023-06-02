@@ -13,7 +13,7 @@ class BaseColumnDefinition(
     AbstractColumnDefinition,
 ):
     cache: bool = True
-    column_class: typing.Type[TColumn] = None
+    column_class: typing.Type[TColumn]  # assign in subclass
 
     def _add_to_class(self):
         super()._add_to_class()

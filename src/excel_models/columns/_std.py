@@ -1,19 +1,15 @@
+from excel_models.column_inst import ExcelColumn
 from excel_models.exceptions import DuplicateColumn
 from excel_models.typing import TTable, TColumnDef, TColumn
 from ._base import BaseColumnDefinition
 
 
 class Column(BaseColumnDefinition):
+    column_class = ExcelColumn
     """
     alias: Alias to another column. `name` attribute is ignored and will be overwritten.
     """
     alias: TColumnDef = None
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.column_class is None:
-            from excel_models.column_inst import ExcelColumn
-            self.column_class = ExcelColumn
 
     def _add_to_class(self):
         super()._add_to_class()

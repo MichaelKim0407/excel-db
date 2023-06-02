@@ -2,19 +2,17 @@ import typing
 
 from returns import returns
 
+from excel_models.column_inst.array import ExcelColumnArray
+from excel_models.column_inst.map import ExcelColumnMap
+from excel_models.column_inst.remainder import ExcelColumnRemainder
 from excel_models.exceptions import DuplicateColumn
 from excel_models.typing import TTable, TColumn
 from ._container import BaseContainer
 
 
 class Columns(BaseContainer):
+    column_class = ExcelColumnArray
     width: int
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.column_class is None:
-            from excel_models.column_inst.array import ExcelColumnArray
-            self.column_class = ExcelColumnArray
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
@@ -39,13 +37,8 @@ class Columns(BaseContainer):
 
 
 class ColumnsStartWith(BaseContainer):
+    column_class = ExcelColumnMap
     create_keys: typing.Collection[str]
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.column_class is None:
-            from excel_models.column_inst.map import ExcelColumnMap
-            self.column_class = ExcelColumnMap
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
@@ -83,11 +76,7 @@ class ColumnsStartWith(BaseContainer):
 
 
 class Remainder(BaseContainer):
-    def __post_init__(self):
-        super().__post_init__()
-        if self.column_class is None:
-            from excel_models.column_inst.remainder import ExcelColumnRemainder
-            self.column_class = ExcelColumnRemainder
+    column_class = ExcelColumnRemainder
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)

@@ -7,15 +7,9 @@ from excel_models.typing import AbstractModel, TColumnDef, TTableDef, TTable, Co
 from excel_models.utils.class_collector import CollectorMeta, ListCollector
 
 
-class ExcelModel(AbstractModel, metaclass=CollectorMeta):
+class BaseExcelModel(AbstractModel, metaclass=CollectorMeta):
     column_defs: ListCollector[TColumnDef] = ListCollector()
-    table_def_class: typing.Type[TTableDef] = None
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if cls.table_def_class is None:
-            from excel_models.tables import ExcelTableDefinition
-            cls.table_def_class = ExcelTableDefinition
+    table_def_class: typing.Type[TTableDef]  # assign in subclass
 
     @classmethod
     def as_table(cls, **table_def_kwargs) -> TTableDef:
@@ -34,7 +28,7 @@ class ExcelModel(AbstractModel, metaclass=CollectorMeta):
         self.values_cache = {}
 
     def __eq__(self, other: typing.Self) -> bool:
-        if other is None or not isinstance(other, ExcelModel):
+        if other is None or not isinstance(other, BaseExcelModel):
             return False
 
         return (

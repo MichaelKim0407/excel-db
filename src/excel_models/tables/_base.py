@@ -6,19 +6,13 @@ from excel_models.typing import AbstractTableDefinition, TDB, TTable
 from excel_models.utils.descriptors import BasePropertyDescriptor
 
 
-class ExcelTableDefinition(
+class BaseExcelTableDefinition(
     BasePropertyDescriptor[TDB],
     AbstractTableDefinition,
 ):
-    table_class: typing.Type[TTable] = None
+    table_class: typing.Type[TTable]  # assign in subclass
     title_row: int = 1
     trim: bool = False
-
-    def __post_init__(self):
-        super().__post_init__()
-        if self.table_class is None:
-            from ._inst import ExcelTable
-            self.table_class = ExcelTable
 
     def _add_to_class(self):
         super()._add_to_class()
