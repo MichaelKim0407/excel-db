@@ -12,6 +12,7 @@ class BaseExcelTableDefinition(
 ):
     table_class: typing.Type[TTable]  # assign in subclass
     title_row: int = 1
+    trim_by_title: bool = False
     trim: bool = False
 
     def _add_to_class(self):
@@ -44,6 +45,8 @@ class BaseExcelTableDefinition(
         if self.name in db.wb:
             ws = db.wb[self.name]
             table = self.make_table(db, ws)
+            if self.trim_by_title:
+                table.trim_cols(use_title_row=True)
             if self.trim:
                 table.trim()
             table.find_columns()
