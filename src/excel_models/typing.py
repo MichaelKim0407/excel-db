@@ -211,7 +211,11 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
 
     # --- utils ---
 
-    def trim_cols(self) -> int:
+    def trim_cols(
+            self,
+            *,
+            use_title_row: bool = False,
+    ) -> int:
         raise NotImplementedError  # pragma: no cover
 
     def trim_rows(self) -> int:

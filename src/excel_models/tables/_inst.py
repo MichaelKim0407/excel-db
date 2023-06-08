@@ -225,9 +225,24 @@ class ExcelTable(AbstractTable):
             col -= 1
         return col
 
-    def trim_cols(self) -> int:
+    @property
+    def _max_title_col(self) -> int:
+        col = 0
+        for cell in self.row(self.title_row):
+            if cell.value is not None:
+                col = max(col, cell.column)
+        return col
+
+    def trim_cols(
+            self,
+            *,
+            use_title_row: bool = False,
+    ) -> int:
         max_col = self.max_col
-        col = self._max_notnone_col
+        if use_title_row:
+            col = self._max_title_col
+        else:
+            col = self._max_notnone_col
         if col == max_col:
             return col
         self.ws.delete_cols(col + 1, max_col - col)
