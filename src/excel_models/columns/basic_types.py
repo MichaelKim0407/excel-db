@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from excel_models.typing import CellValue, ColumnValue
+from excel_models.typing import CellValue, ColumnValue, TModel
 from ._std import Column
 
 
@@ -8,7 +8,7 @@ class BaseTypedColumn(Column):
     def _convert_to_python(self, raw: CellValue) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
-    def to_python(self, raw: CellValue) -> ColumnValue:
+    def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
         if raw is None:
             return None
         return self._convert_to_python(raw)
@@ -16,7 +16,7 @@ class BaseTypedColumn(Column):
     def _convert_from_python(self, value: ColumnValue) -> CellValue:
         raise NotImplementedError  # pragma: no cover
 
-    def from_python(self, value: ColumnValue) -> CellValue:
+    def from_python(self, row: TModel, value: ColumnValue) -> CellValue:
         if value is None:
             return None
         return self._convert_from_python(value)

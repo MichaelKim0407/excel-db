@@ -6,7 +6,7 @@ from excel_models.column_inst.array import ExcelColumnArray
 from excel_models.column_inst.map import ExcelColumnMap
 from excel_models.column_inst.remainder import ExcelColumnRemainder
 from excel_models.exceptions import DuplicateColumn
-from excel_models.typing import TTable, TColumn
+from excel_models.typing import TTable, TColumn, TModel
 from ._container import BaseContainer
 
 
@@ -26,14 +26,14 @@ class Columns(BaseContainer):
         return self.column_class(table, self, col_num, self.width), self.width
 
     @returns(tuple)
-    def to_python(self, raw: typing.Sequence) -> typing.Sequence:
+    def to_python(self, row: TModel, raw: typing.Sequence) -> typing.Sequence:
         for v in raw:
-            yield self.inner.to_python(v)
+            yield self.inner.to_python(row, v)
 
     @returns(tuple)
-    def from_python(self, value: typing.Sequence) -> typing.Sequence:
+    def from_python(self, row: TModel, value: typing.Sequence) -> typing.Sequence:
         for v in value:
-            yield self.inner.from_python(v)
+            yield self.inner.from_python(row, v)
 
 
 class ColumnsStartWith(BaseContainer):
@@ -65,14 +65,14 @@ class ColumnsStartWith(BaseContainer):
         return self.column_class(table, self, col_map), len(col_map)
 
     @returns(dict)
-    def to_python(self, raw: typing.Mapping) -> typing.Mapping:
+    def to_python(self, row: TModel, raw: typing.Mapping) -> typing.Mapping:
         for k, v in raw.items():
-            yield k, self.inner.to_python(v)
+            yield k, self.inner.to_python(row, v)
 
     @returns(dict)
-    def from_python(self, value: typing.Mapping) -> typing.Mapping:
+    def from_python(self, row: TModel, value: typing.Mapping) -> typing.Mapping:
         for k, v in value.items():
-            yield k, self.inner.from_python(v)
+            yield k, self.inner.from_python(row, v)
 
 
 class Remainder(BaseContainer):
@@ -90,11 +90,11 @@ class Remainder(BaseContainer):
         return self.column_class(table, self, col_num), 1  # use 1 here but this must be the last column
 
     @returns(tuple)
-    def to_python(self, raw: typing.Sequence) -> typing.Sequence:
+    def to_python(self, row: TModel, raw: typing.Sequence) -> typing.Sequence:
         for v in raw:
-            yield self.inner.to_python(v)
+            yield self.inner.to_python(row, v)
 
     @returns(tuple)
-    def from_python(self, value: typing.Sequence) -> typing.Sequence:
+    def from_python(self, row: TModel, value: typing.Sequence) -> typing.Sequence:
         for v in value:
-            yield self.inner.from_python(v)
+            yield self.inner.from_python(row, v)

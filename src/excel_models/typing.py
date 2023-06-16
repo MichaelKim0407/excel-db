@@ -84,7 +84,7 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def get_column(self, table: 'TTable') -> 'TColumn':
         raise NotImplementedError  # pragma: no cover
 
-    def to_python(self, raw: CellValue) -> ColumnValue:
+    def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
     def get_raw(self, row: TModel) -> CellValue:
@@ -93,7 +93,7 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
-    def from_python(self, value: ColumnValue) -> CellValue:
+    def from_python(self, row: TModel, value: ColumnValue) -> CellValue:
         raise NotImplementedError  # pragma: no cover
 
     def set_raw(self, row: TModel, raw: CellValue) -> None:
