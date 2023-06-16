@@ -9,12 +9,13 @@ from excel_models.models import ExcelModel
 
 @pytest.fixture()
 def excel(lazy_init_excel):
-    return lazy_init_excel('users', 'last_login', '2023/1/1', datetime(2023, 2, 1), '?????')
+    return lazy_init_excel('users', 'last_login', '2023/1/1', datetime(2023, 2, 1), '?????', '1/1/23')
 
 
 class User(ExcelModel):
     last_login = DateTimeColumn(format='%Y/%m/%d')
     last_login2 = DateTimeColumn(alias=last_login)
+    last_login3 = DateTimeColumn(alias=last_login, format=('%Y/%m/%d', '%m/%d/%y'))
 
 
 class MyDB(ExcelDB):
@@ -46,3 +47,13 @@ def test_set(db):
 def test_format_not_provided(db):
     with pytest.raises(ValueError):
         _ = db.users[0].last_login2
+
+
+def test_multiple_formats(db):
+    assert db.users.last_login3[:2] == [datetime(2023, 1, 1), datetime(2023, 2, 1)]
+    with pytest.raises(ValueError):
+        _ = db.users.last_login3[2]
+    assert db.users.last_login3[3] == datetime(2023, 1, 1)
+
+    with pytest.raises(ValueError):
+        _ = db.users.last_login[3]

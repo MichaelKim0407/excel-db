@@ -3,7 +3,7 @@ import typing
 from excel_models.typing import (
     AbstractColumnDefinition,
     TModel, TTable, TColumn,
-    CellValue, ColumnValue,
+    CellValue, ColumnValue, ColumnCell,
 )
 from excel_models.utils.descriptors import BasePropertyDescriptor
 
@@ -22,7 +22,10 @@ class BaseColumnDefinition(
     def get_column(self, table: TTable) -> TColumn:
         return getattr(table, self.attr)
 
-    def to_python(self, raw: CellValue) -> ColumnValue:
+    def cell(self, row: TModel) -> ColumnCell:
+        return self.get_column(row.table).cell(row.row_num)
+
+    def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
         return raw
 
     def get_raw(self, row: TModel) -> CellValue:
@@ -30,7 +33,7 @@ class BaseColumnDefinition(
 
     def _get_default(self, row: TModel) -> ColumnValue:
         raw = self.get_raw(row)
-        return self.to_python(raw)
+        return self.to_python(row, raw)
 
     validators = ()
 
@@ -80,14 +83,14 @@ class BaseColumnDefinition(
         else:
             return self._get_nocache(row)
 
-    def from_python(self, value: ColumnValue) -> CellValue:
+    def from_python(self, row: TModel, value: ColumnValue) -> CellValue:
         return value
 
     def set_raw(self, row: TModel, raw: CellValue) -> None:
         self.get_column(row.table).set_raw(row.row_num, raw)
 
     def _set_default(self, row: TModel, value: ColumnValue) -> None:
-        raw = self.from_python(value)
+        raw = self.from_python(row, value)
         self.set_raw(row, raw)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:
@@ -107,3 +110,11 @@ class BaseColumnDefinition(
         if self.cache:
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]
+
+    @property
+    def cell_accessor(self) -> property:
+        return property(self.cell)
+
+    @property
+    def raw_value_accessor(self) -> property:
+        return property(self.get_raw, self.set_raw, self.delete_raw)
