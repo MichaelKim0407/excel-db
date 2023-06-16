@@ -84,6 +84,9 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
     def get_column(self, table: 'TTable') -> 'TColumn':
         raise NotImplementedError  # pragma: no cover
 
+    def cell(self, row: TModel) -> ColumnCell:
+        raise NotImplementedError  # pragma: no cover
+
     def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
@@ -106,6 +109,16 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
         raise NotImplementedError  # pragma: no cover
 
     def __delete__(self, row: TModel) -> None:
+        raise NotImplementedError  # pragma: no cover
+
+    # --- accessor properties ---
+
+    @property
+    def cell_accessor(self) -> property:
+        raise NotImplementedError  # pragma: no cover
+
+    @property
+    def raw_value_accessor(self) -> property:
         raise NotImplementedError  # pragma: no cover
 
 

@@ -3,7 +3,7 @@ import typing
 from excel_models.typing import (
     AbstractColumnDefinition,
     TModel, TTable, TColumn,
-    CellValue, ColumnValue,
+    CellValue, ColumnValue, ColumnCell,
 )
 from excel_models.utils.descriptors import BasePropertyDescriptor
 
@@ -21,6 +21,9 @@ class BaseColumnDefinition(
 
     def get_column(self, table: TTable) -> TColumn:
         return getattr(table, self.attr)
+
+    def cell(self, row: TModel) -> ColumnCell:
+        return self.get_column(row.table).cell(row.row_num)
 
     def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
         return raw
@@ -107,3 +110,11 @@ class BaseColumnDefinition(
         if self.cache:
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]
+
+    @property
+    def cell_accessor(self) -> property:
+        return property(self.cell)
+
+    @property
+    def raw_value_accessor(self) -> property:
+        return property(self.get_raw, self.set_raw, self.delete_raw)

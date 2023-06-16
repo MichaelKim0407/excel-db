@@ -13,28 +13,27 @@ def excel(lazy_init_excel):
 class User(ExcelModel):
     @Column()
     def name(self):
-        raw = self._get_name(self)
+        raw = self.raw_name
         if raw is None or raw == '':
             return []
         return raw.split('\n')
 
-    _get_name = name.get_raw
-    _set_name = name.set_raw
+    raw_name = name.raw_value_accessor
 
     @name.setter
     def name(self, value):
         if not value:
-            self._set_name(self, '')
+            self.raw_name = ''
             return
-        self._set_name(self, '\n'.join(value))
+        self.raw_name = '\n'.join(value)
 
     @name.deleter
     def name(self):
-        self._set_name(self, '')
+        self.raw_name = ''
 
-    @name.error_handler
+    @name.error_handler  # noqa: pycharm
     def name(self, ex: Exception):
-        return [str(self._get_name(self))]
+        return [str(self.raw_name)]
 
 
 class MyDB(ExcelDB):
