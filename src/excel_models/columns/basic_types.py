@@ -1,3 +1,4 @@
+import typing
 from datetime import datetime
 
 from excel_models.typing import CellValue, ColumnValue, TModel
@@ -58,13 +59,25 @@ class FloatColumn(BaseSimpleTypeColumn):
 
 
 class DateTimeColumn(BaseSimpleTypeColumn):
-    format: str  # must be set in kwargs, unless you are certain there are no strings
+    format: str | typing.Sequence[str]  # must be set in kwargs, unless you are certain there are no strings
+
+    def _strptime(self, value):
+        if isinstance(self.format, str):
+            return datetime.strptime(value, self.format)
+
+        for fmt in self.format:
+            try:
+                return datetime.strptime(value, fmt)
+            except ValueError:
+                pass
+
+        raise ValueError(f"Cannot parse '{value}' with any of the given time formats.")
 
     def _convert(self, value) -> datetime:
         if isinstance(value, datetime):
             return value
 
         if isinstance(value, str) and hasattr(self, 'format'):
-            return datetime.strptime(value, self.format)
+            return self._strptime(value)
 
         raise ValueError(value)
