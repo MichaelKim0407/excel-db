@@ -58,6 +58,17 @@ class FloatColumn(BaseSimpleTypeColumn):
     _convert = float
 
 
+class BooleanColumn(BaseSimpleTypeColumn):
+    truthy: typing.Collection[str] = ()  # values should be lowercase for case-insensitive comparison
+
+    def _convert(self, value) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in self.truthy
+        raise ValueError(value)
+
+
 class DateTimeColumn(BaseSimpleTypeColumn):
     format: str | typing.Sequence[str]  # must be set in kwargs, unless you are certain there are no strings
 
