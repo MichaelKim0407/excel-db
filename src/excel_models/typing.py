@@ -68,7 +68,7 @@ class AbstractModel:
 TModel = typing.TypeVar('TModel', bound=AbstractModel)
 
 
-class AbstractColumnDefinition(typing.Generic[TModel]):
+class AbstractColumnDefinition:
     attr: str
     name: str
 
@@ -125,7 +125,7 @@ class AbstractColumnDefinition(typing.Generic[TModel]):
 TColumnDef = typing.TypeVar('TColumnDef', bound=AbstractColumnDefinition)
 
 
-class AbstractTableDefinition(typing.Generic[TDB, TModel]):
+class AbstractTableDefinition:
     attr: str
     name: str
     model: typing.Type[TModel]
@@ -157,7 +157,7 @@ class AbstractTableDefinition(typing.Generic[TDB, TModel]):
 TTableDef = typing.TypeVar('TTableDef', bound=AbstractTableDefinition)
 
 
-class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
+class AbstractTable:
     db: TDB
     table_def: TTableDef
     ws: Worksheet
@@ -252,7 +252,7 @@ class AbstractTable(typing.Generic[TDB, TModel, TTableDef]):
 TTable = typing.TypeVar('TTable', bound=AbstractTable)
 
 
-class AbstractColumn(typing.Generic[TTable, TColumnDef]):
+class AbstractColumn:
     table: TTable
     column_def: TColumnDef
 
