@@ -3,7 +3,7 @@ import typing
 
 from returns import returns
 
-from excel_models.typing import TModel
+from excel_models.typing import CellContext
 from ._container import BaseContainer
 from ._std import Column
 from .basic_types import BaseTypedColumn
@@ -17,34 +17,34 @@ class ArrayColumn(BaseContainer, Column):
     def split(self, value: str) -> list[str]:
         return value.split(self.delimiter)
 
-    def to_python(self, row: TModel, raw):
+    def to_python(self, raw, context: CellContext):
         if not raw:
             if self.empty_as_none:
                 return None
             else:
                 return ()
-        return self._to_python(row, raw)
+        return self._to_python(raw, context)
 
     @returns(tuple)
-    def _to_python(self, row: TModel, raw):
+    def _to_python(self, raw, context: CellContext):
         if not isinstance(raw, str):
-            yield self.inner.to_python(row, raw)
+            yield self.inner.to_python(raw, context)
             return
 
         for item in self.split(raw):
             if self.strip:
                 item = item.strip()
-            yield self.inner.to_python(row, item)
+            yield self.inner.to_python(item, context)
 
     def join(self, value: typing.Iterable[str]) -> str:
         return self.delimiter.join(value)
 
-    def from_python(self, row: TModel, value):
+    def from_python(self, value, context: CellContext):
         if not value:
             return None
 
         return self.join(
-            self.inner.from_python(row, item)
+            self.inner.from_python(item, context)
             for item in value
         )
 

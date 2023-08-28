@@ -1,4 +1,6 @@
 import typing
+from dataclasses import dataclass
+from functools import cached_property
 
 from openpyxl.cell import Cell
 from openpyxl.workbook import Workbook
@@ -68,6 +70,28 @@ class AbstractModel:
 TModel = typing.TypeVar('TModel', bound=AbstractModel)
 
 
+@dataclass
+class CellContext:
+    row: TModel
+    column: 'TColumn'
+
+    @property
+    def row_num(self) -> int:
+        return self.row.row_num
+
+    @cached_property
+    def cell(self) -> ColumnCell:
+        return self.column.cell(self.row_num)
+
+    @property
+    def raw(self) -> CellValue:
+        return self.column.get_raw(self.row_num)
+
+    @raw.setter
+    def raw(self, raw: CellValue):
+        self.column.set_raw(self.row_num, raw)
+
+
 class AbstractColumnDefinition:
     attr: str
     name: str
@@ -84,10 +108,13 @@ class AbstractColumnDefinition:
     def get_column(self, table: 'TTable') -> 'TColumn':
         raise NotImplementedError  # pragma: no cover
 
+    def get_cell_context(self, row: TModel) -> CellContext:
+        raise NotImplementedError  # pragma: no cover
+
     def cell(self, row: TModel) -> ColumnCell:
         raise NotImplementedError  # pragma: no cover
 
-    def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
+    def to_python(self, raw: CellValue, context: CellContext) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
     def get_raw(self, row: TModel) -> CellValue:
@@ -96,7 +123,7 @@ class AbstractColumnDefinition:
     def __get__(self, row: TModel, model: typing.Type[TModel] = None) -> ColumnValue:
         raise NotImplementedError  # pragma: no cover
 
-    def from_python(self, row: TModel, value: ColumnValue) -> CellValue:
+    def from_python(self, value: ColumnValue, context: CellContext) -> CellValue:
         raise NotImplementedError  # pragma: no cover
 
     def set_raw(self, row: TModel, raw: CellValue) -> None:
