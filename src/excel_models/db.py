@@ -43,6 +43,13 @@ class ExcelDB(AbstractDB, metaclass=CollectorMeta):
             else:
                 raise FileNotFoundError(self.filename)
 
+    def delete_default(self):
+        for name in ('Sheet', 'Sheet1'):
+            try:
+                del self.wb[name]
+            except KeyError:
+                pass
+
     def save_as(self, filename: str):
         self.wb.save(filename)
 
