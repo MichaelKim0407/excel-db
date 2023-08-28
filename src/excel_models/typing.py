@@ -145,6 +145,14 @@ class AbstractTableDefinition(typing.Generic[TDB, TModel]):
     def __delete__(self, db: TDB) -> None:
         raise NotImplementedError  # pragma: no cover
 
+    @property
+    def safe_delete(self) -> typing.Callable[[TDB], None]:
+        raise NotImplementedError  # pragma: no cover
+
+    @property
+    def reinit(self) -> typing.Callable[[TDB], 'TTable']:
+        raise NotImplementedError  # pragma: no cover
+
 
 TTableDef = typing.TypeVar('TTableDef', bound=AbstractTableDefinition)
 

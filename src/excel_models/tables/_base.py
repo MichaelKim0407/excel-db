@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 from openpyxl.worksheet.worksheet import Worksheet
 
@@ -85,3 +86,21 @@ class BaseExcelTableDefinition(
         if self.attr in db.__dict__:
             del db.tables_cache[self.attr]
         self._delete_method(db)
+
+    def _safe_delete(self, db: TDB):
+        try:
+            self.__delete__(db)
+        except KeyError:
+            pass
+
+    @cached_property
+    def safe_delete(self) -> typing.Callable[[TDB], None]:
+        return lambda db: self._safe_delete(db)
+
+    def _reinit(self, db: TDB):
+        self.safe_delete(db)
+        return self.__get__(db)
+
+    @cached_property
+    def reinit(self) -> typing.Callable[[TDB], TTable]:
+        return lambda db: self._reinit(db)

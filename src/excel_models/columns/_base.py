@@ -1,4 +1,5 @@
 import typing
+from functools import cached_property
 
 from excel_models.typing import (
     AbstractColumnDefinition,
@@ -111,10 +112,10 @@ class BaseColumnDefinition(
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]
 
-    @property
+    @cached_property
     def cell_accessor(self) -> property:
         return property(self.cell)
 
-    @property
+    @cached_property
     def raw_value_accessor(self) -> property:
         return property(self.get_raw, self.set_raw, self.delete_raw)
