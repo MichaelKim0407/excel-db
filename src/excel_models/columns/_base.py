@@ -1,5 +1,6 @@
 import typing
 from functools import cached_property
+from inspect import signature
 
 from excel_models.typing import (
     AbstractColumnDefinition,
@@ -42,9 +43,18 @@ class BaseColumnDefinition(
 
     validators = ()
 
-    def _validate(self, row: TModel, value: ColumnValue) -> None:
+    def _validate(self, row: TModel, value: ColumnValue, context: CellContext) -> None:
         for validator in self.validators:
-            validator(row, value)
+            parameters = signature(validator).parameters
+            match tuple(parameters):
+                case 'self', :  # @formatter:off
+                    validator(row)
+                case _, :  # @formatter:off
+                    validator(value)
+                case _, _:
+                    validator(row, value)
+                case _:
+                    validator(row, value, context)
 
     def validator(self, f_validate):
         if isinstance(self.validators, tuple):
@@ -75,7 +85,7 @@ class BaseColumnDefinition(
         context = self.get_cell_context(row)
         try:
             value = self._get_method(row)
-            self._validate(row, value)
+            self._validate(row, value, context)
             return value
         except Exception as ex:
             return self._handle_error(row, ex, context)
@@ -100,7 +110,8 @@ class BaseColumnDefinition(
         context.raw = self.from_python(value, context)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:
-        self._validate(row, value)
+        context = self.get_cell_context(row)
+        self._validate(row, value, context)
         self._set_method(row, value)
         if self.cache:
             row.values_cache[self.attr] = value
