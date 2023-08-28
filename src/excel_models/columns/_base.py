@@ -54,7 +54,7 @@ class BaseColumnDefinition(
 
     _f_handle_error = None
 
-    def _handle_error_default(self, row: TModel, ex: Exception) -> ColumnValue:
+    def _handle_error_default(self, row: TModel, ex: Exception, context: CellContext) -> ColumnValue:
         raise
 
     @property
@@ -64,20 +64,21 @@ class BaseColumnDefinition(
         else:
             return self._f_handle_error
 
-    def _handle_error(self, row: TModel, ex: Exception) -> ColumnValue:
-        return self._handle_error_method(row, ex)
+    def _handle_error(self, row: TModel, ex: Exception, context: CellContext) -> ColumnValue:
+        return self._handle_error_method(row, ex, context)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
         return self
 
     def _get_nocache(self, row: TModel) -> ColumnValue:
+        context = self.get_cell_context(row)
         try:
             value = self._get_method(row)
             self._validate(row, value)
             return value
         except Exception as ex:
-            return self._handle_error(row, ex)
+            return self._handle_error(row, ex, context)
 
     def _get(self, row: TModel) -> ColumnValue:
         if self.cache:
