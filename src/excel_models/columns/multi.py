@@ -39,6 +39,7 @@ class Columns(BaseContainer):
 class ColumnsStartWith(BaseContainer):
     column_class = ExcelColumnMap
     create_keys: typing.Collection[str]
+    omit_none: bool = False
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
@@ -67,7 +68,10 @@ class ColumnsStartWith(BaseContainer):
     @returns(dict)
     def to_python(self, raw: typing.Mapping, context: CellContext) -> typing.Mapping:
         for k, v in raw.items():
-            yield k, self.inner.to_python(v, context)
+            v2 = self.inner.to_python(v, context)
+            if v2 is None and self.omit_none:
+                continue
+            yield k, v2
 
     @returns(dict)
     def from_python(self, value: typing.Mapping, context: CellContext) -> typing.Mapping:
