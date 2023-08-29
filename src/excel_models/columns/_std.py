@@ -20,9 +20,12 @@ class Column(BaseColumnDefinition):
         column = getattr(table, self.alias.attr)
         return self.column_class(table, self, column.col_num, concrete=False)
 
+    def _get_title(self, table: TTable) -> str:
+        return self.name
+
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
-        if title != self.name:
+        if title != self._get_title(table):
             return None
 
         if self.attr in table.columns_cache:
@@ -37,5 +40,5 @@ class Column(BaseColumnDefinition):
         if self.alias is not None:
             return self._make_alias(table), 0
 
-        table.set_title(col_num, self.name)
+        table.set_title(col_num, self._get_title(table))
         return self.column_class(table, self, col_num), 1
