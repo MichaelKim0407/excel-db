@@ -41,20 +41,24 @@ class BaseColumnDefinition(
         context = self.get_cell_context(row)
         return self.to_python(context.raw, context)
 
+    def _call_method_variable_signature(self, method, row: TModel, value):
+        parameters = signature(method).parameters
+        match tuple(parameters):
+            case 'self', :  # @formatter:off
+                return method(row)
+            case _, :  # @formatter:off
+                return method(value)
+            case _, _:
+                return method(row, value)
+            case _:
+                context = self.get_cell_context(row)
+                return method(row, value, context)
+
     validators = ()
 
-    def _validate(self, row: TModel, value: ColumnValue, context: CellContext) -> None:
+    def _validate(self, row: TModel, value: ColumnValue) -> None:
         for validator in self.validators:
-            parameters = signature(validator).parameters
-            match tuple(parameters):
-                case 'self', :  # @formatter:off
-                    validator(row)
-                case _, :  # @formatter:off
-                    validator(value)
-                case _, _:
-                    validator(row, value)
-                case _:
-                    validator(row, value, context)
+            self._call_method_variable_signature(validator, row, value)
 
     def validator(self, f_validate):
         if isinstance(self.validators, tuple):
@@ -74,21 +78,20 @@ class BaseColumnDefinition(
         else:
             return self._f_handle_error
 
-    def _handle_error(self, row: TModel, ex: Exception, context: CellContext) -> ColumnValue:
-        return self._handle_error_method(row, ex, context)
+    def _handle_error(self, row: TModel, ex: Exception) -> ColumnValue:
+        return self._call_method_variable_signature(self._handle_error_method, row, ex)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
         return self
 
     def _get_nocache(self, row: TModel) -> ColumnValue:
-        context = self.get_cell_context(row)
         try:
             value = self._get_method(row)
-            self._validate(row, value, context)
+            self._validate(row, value)
             return value
         except Exception as ex:
-            return self._handle_error(row, ex, context)
+            return self._handle_error(row, ex)
 
     def _get(self, row: TModel) -> ColumnValue:
         if self.cache:
@@ -110,8 +113,7 @@ class BaseColumnDefinition(
         context.raw = self.from_python(value, context)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:
-        context = self.get_cell_context(row)
-        self._validate(row, value, context)
+        self._validate(row, value)
         self._set_method(row, value)
         if self.cache:
             row.values_cache[self.attr] = value
