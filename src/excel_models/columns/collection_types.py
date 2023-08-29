@@ -13,6 +13,8 @@ from .basic_types import BaseTypedColumn
 class ArrayColumn(BaseContainer, Column):
     delimiter: str = '\n'
     strip: bool = False
+    skip_empty: bool = False
+    omit_none: bool = False
     empty_as_none: bool = True
 
     @dataclass
@@ -39,7 +41,12 @@ class ArrayColumn(BaseContainer, Column):
         for i, item in enumerate(self.split(raw)):
             if self.strip:
                 item = item.strip()
-            yield self.inner.to_python(item, self.InnerContext.from_parent(context, index=i))
+            if (not item) and self.skip_empty:
+                continue
+            v = self.inner.to_python(item, self.InnerContext.from_parent(context, index=i))
+            if v is None and self.omit_none:
+                continue
+            yield v
 
     def join(self, value: typing.Iterable[str]) -> str:
         return self.delimiter.join(value)
