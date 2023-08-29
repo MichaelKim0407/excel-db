@@ -91,6 +91,14 @@ class CellContext:
     def raw(self, raw: CellValue):
         self.column.set_raw(self.row_num, raw)
 
+    @property
+    def table(self) -> 'TTable':
+        return self.row.table
+
+    @property
+    def db(self) -> TDB:
+        return self.table.db
+
 
 class AbstractColumnDefinition:
     attr: str
