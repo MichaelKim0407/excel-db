@@ -1,5 +1,6 @@
 import json
 import typing
+from dataclasses import dataclass
 
 from returns import returns
 
@@ -13,6 +14,10 @@ class ArrayColumn(BaseContainer, Column):
     delimiter: str = '\n'
     strip: bool = False
     empty_as_none: bool = True
+
+    @dataclass
+    class InnerContext(BaseContainer.InnerContext):
+        index: int
 
     def split(self, value: str) -> list[str]:
         return value.split(self.delimiter)
@@ -28,13 +33,13 @@ class ArrayColumn(BaseContainer, Column):
     @returns(tuple)
     def _to_python(self, raw, context: CellContext):
         if not isinstance(raw, str):
-            yield self.inner.to_python(raw, context)
+            yield self.inner.to_python(raw, self.InnerContext.from_parent(context, index=0))
             return
 
-        for item in self.split(raw):
+        for i, item in enumerate(self.split(raw)):
             if self.strip:
                 item = item.strip()
-            yield self.inner.to_python(item, context)
+            yield self.inner.to_python(item, self.InnerContext.from_parent(context, index=i))
 
     def join(self, value: typing.Iterable[str]) -> str:
         return self.delimiter.join(value)
@@ -44,8 +49,8 @@ class ArrayColumn(BaseContainer, Column):
             return None
 
         return self.join(
-            self.inner.from_python(item, context)
-            for item in value
+            self.inner.from_python(item, self.InnerContext.from_parent(context, index=i))
+            for i, item in enumerate(value)
         )
 
 

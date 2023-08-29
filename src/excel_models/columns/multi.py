@@ -1,16 +1,14 @@
 import typing
 
-from returns import returns
-
 from excel_models.column_inst.array import ExcelColumnArray
 from excel_models.column_inst.map import ExcelColumnMap
 from excel_models.column_inst.remainder import ExcelColumnRemainder
 from excel_models.exceptions import DuplicateColumn
-from excel_models.typing import TTable, TColumn, CellContext
-from ._container import BaseContainer
+from excel_models.typing import TTable, TColumn
+from ._container import BaseArrayContainer, BaseMapContainer
 
 
-class Columns(BaseContainer):
+class Columns(BaseArrayContainer):
     column_class = ExcelColumnArray
     width: int
 
@@ -25,21 +23,10 @@ class Columns(BaseContainer):
         table.set_title(col_num, self.name)
         return self.column_class(table, self, col_num, self.width), self.width
 
-    @returns(tuple)
-    def to_python(self, raw: typing.Sequence, context: CellContext) -> typing.Sequence:
-        for v in raw:
-            yield self.inner.to_python(v, context)
 
-    @returns(tuple)
-    def from_python(self, value: typing.Sequence, context: CellContext) -> typing.Sequence:
-        for v in value:
-            yield self.inner.from_python(v, context)
-
-
-class ColumnsStartWith(BaseContainer):
+class ColumnsStartWith(BaseMapContainer):
     column_class = ExcelColumnMap
     create_keys: typing.Collection[str]
-    omit_none: bool = False
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
         title = table.get_title(col_num)
@@ -65,21 +52,8 @@ class ColumnsStartWith(BaseContainer):
             table.set_title(c, f'{self.name}{k}')
         return self.column_class(table, self, col_map), len(col_map)
 
-    @returns(dict)
-    def to_python(self, raw: typing.Mapping, context: CellContext) -> typing.Mapping:
-        for k, v in raw.items():
-            v2 = self.inner.to_python(v, context)
-            if v2 is None and self.omit_none:
-                continue
-            yield k, v2
 
-    @returns(dict)
-    def from_python(self, value: typing.Mapping, context: CellContext) -> typing.Mapping:
-        for k, v in value.items():
-            yield k, self.inner.from_python(v, context)
-
-
-class Remainder(BaseContainer):
+class Remainder(BaseArrayContainer):
     column_class = ExcelColumnRemainder
 
     def match_column(self, table: TTable, col_num: int) -> TColumn | None:
@@ -92,13 +66,3 @@ class Remainder(BaseContainer):
     def init_column(self, table: TTable, col_num: int) -> tuple[TColumn, int]:
         table.set_title(col_num, self.name)
         return self.column_class(table, self, col_num), 1  # use 1 here but this must be the last column
-
-    @returns(tuple)
-    def to_python(self, raw: typing.Sequence, context: CellContext) -> typing.Sequence:
-        for v in raw:
-            yield self.inner.to_python(v, context)
-
-    @returns(tuple)
-    def from_python(self, value: typing.Sequence, context: CellContext) -> typing.Sequence:
-        for v in value:
-            yield self.inner.from_python(v, context)
