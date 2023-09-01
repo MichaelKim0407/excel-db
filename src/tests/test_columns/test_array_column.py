@@ -8,12 +8,27 @@ from excel_models.models import ExcelModel
 
 @pytest.fixture()
 def excel(lazy_init_excel):
-    return lazy_init_excel('users', 'name', 'John\nDoe', None, 'Bob, C.', 1.5)
+    return lazy_init_excel(
+        'users',
+        'name',
+        'John\nDoe',
+        None,
+        'Bob, C.',
+        1.5,
+        ',,x',
+    )
 
 
 class User(ExcelModel):
     name = ArrayColumn(inner=StringColumn())
-    name2 = ArrayColumn(alias=name, delimiter=',', strip=True, empty_as_none=False)
+    name2 = ArrayColumn(
+        alias=name,
+        delimiter=',',
+        strip=True,
+        skip_empty=True,
+        omit_none=True,
+        empty_as_none=False,
+    )
 
 
 class MyDB(ExcelDB):
@@ -26,7 +41,13 @@ def db(excel):
 
 
 def test_get(db):
-    assert db.users.name[:] == [('John', 'Doe'), None, ('Bob, C.',), ('1.5',)]
+    assert db.users.name[:] == [
+        ('John', 'Doe'),
+        None,
+        ('Bob, C.',),
+        ('1.5',),
+        (',,x',),
+    ]
 
 
 def test_set(db):
@@ -34,5 +55,11 @@ def test_set(db):
     assert db.users.cell(3, 1).value == 'Chris'
 
 
-def test_strip(db):
-    assert db.users.name2[:] == [('John\nDoe',), (), ('Bob', 'C.'), (1.5,)]
+def test_options(db):
+    assert db.users.name2[:] == [
+        ('John\nDoe',),  # delimiter=','
+        (),  # empty_as_none=False
+        ('Bob', 'C.'),  # delimiter=',', strip=True
+        (1.5,),  # inner use default
+        ('x',),  # skip_empty=True
+    ]

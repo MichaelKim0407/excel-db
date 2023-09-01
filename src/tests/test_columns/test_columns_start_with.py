@@ -10,11 +10,18 @@ from excel_models.models import ExcelModel
 
 @pytest.fixture()
 def excel(lazy_init_excel):
-    return lazy_init_excel('numbers', ['number', 'number2', 'number3'], [1, 2, 3], [4, 5, '6'], ['7', 8, 9])
+    return lazy_init_excel(
+        'numbers',
+        ['number', 'number2', 'number3', 'v1'],
+        [1, 2, 3, 1],
+        [4, 5, '6', 2],
+        ['7', 8, 9, None],
+    )
 
 
 class Numbers(ExcelModel):
     numbers = ColumnsStartWith(name='number', inner=IntColumn(), create_keys=('1', '2', '3'))
+    numbers2 = ColumnsStartWith(name='v', inner=IntColumn(), create_keys=('1',), omit_none=True)
 
     @property
     def sum(self) -> int:
@@ -70,3 +77,7 @@ def test_duplicate_columns(lazy_init_excel):
     with pytest.raises(DuplicateColumn) as ex:
         _ = db.numbers
     assert 'numbers[1]' in str(ex.value)
+
+
+def test_skip_none(db):
+    assert db.numbers.numbers2[:] == [{'1': 1}, {'1': 2}, {}]

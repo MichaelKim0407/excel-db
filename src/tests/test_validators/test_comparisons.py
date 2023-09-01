@@ -25,22 +25,22 @@ class User(ExcelModel):
     @age3.validator
     def age3(self, value):
         try:
-            LessThan(3)(self, value)
+            LessThan(3)(value)
             return
         except ValidationError:
             pass
         try:
-            GreaterThanOrEqualTo(21)(self, value)
+            GreaterThanOrEqualTo(21)(value)
             return
         except ValidationError:
             pass
         try:
-            EqualTo(18)(self, value)
+            EqualTo(18)(value)
             return
         except ValidationError:
             pass
         try:
-            Is(None)(self, value)
+            Is(None)(value)
             return
         except ValidationError:
             pass

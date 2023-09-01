@@ -12,6 +12,7 @@ class User(ExcelModel):
 
 class MyDB(ExcelDB):
     users = User.as_table()
+    users2 = User.as_table()
 
 
 @pytest.fixture()
@@ -24,3 +25,8 @@ def test_delete_sheet(db):
     assert set(db.wb.sheetnames) == set()
     _ = db.users
     assert db.users.max_row == 1
+
+
+def test_delete_error(db):
+    with pytest.raises(KeyError):
+        del db.users2

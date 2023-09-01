@@ -1,8 +1,7 @@
 from excel_models.exceptions import ValidationError
-from ._base import AbstractValueValidator
 
 
-class AbstractComparisonValidator(AbstractValueValidator):
+class AbstractComparisonValidator:
     skip_none = False
 
     def _compare(self, value) -> bool:
@@ -11,7 +10,7 @@ class AbstractComparisonValidator(AbstractValueValidator):
     def _error_message(self, value):
         return value
 
-    def _validate(self, value):
+    def __call__(self, value):
         if value is None and self.skip_none:
             return
         if not self._compare(value):

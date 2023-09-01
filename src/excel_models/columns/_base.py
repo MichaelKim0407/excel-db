@@ -1,9 +1,11 @@
 import typing
+from functools import cached_property
+from inspect import signature
 
 from excel_models.typing import (
     AbstractColumnDefinition,
     TModel, TTable, TColumn,
-    CellValue, ColumnValue, ColumnCell,
+    CellValue, ColumnValue, ColumnCell, CellContext,
 )
 from excel_models.utils.descriptors import BasePropertyDescriptor
 
@@ -22,24 +24,41 @@ class BaseColumnDefinition(
     def get_column(self, table: TTable) -> TColumn:
         return getattr(table, self.attr)
 
+    def get_cell_context(self, row: TModel) -> CellContext:
+        column = self.get_column(row.table)
+        return CellContext(row, column)
+
     def cell(self, row: TModel) -> ColumnCell:
         return self.get_column(row.table).cell(row.row_num)
 
-    def to_python(self, row: TModel, raw: CellValue) -> ColumnValue:
+    def to_python(self, raw: CellValue, context: CellContext) -> ColumnValue:
         return raw
 
     def get_raw(self, row: TModel) -> CellValue:
         return self.get_column(row.table).get_raw(row.row_num)
 
     def _get_default(self, row: TModel) -> ColumnValue:
-        raw = self.get_raw(row)
-        return self.to_python(row, raw)
+        context = self.get_cell_context(row)
+        return self.to_python(context.raw, context)
+
+    def _call_method_variable_signature(self, method, row: TModel, value):
+        parameters = signature(method).parameters
+        match tuple(parameters):
+            case 'self', :  # @formatter:off
+                return method(row)
+            case _, :  # @formatter:off
+                return method(value)
+            case _, _:
+                return method(row, value)
+            case _:
+                context = self.get_cell_context(row)
+                return method(row, value, context)
 
     validators = ()
 
     def _validate(self, row: TModel, value: ColumnValue) -> None:
         for validator in self.validators:
-            validator(row, value)
+            self._call_method_variable_signature(validator, row, value)
 
     def validator(self, f_validate):
         if isinstance(self.validators, tuple):
@@ -49,7 +68,7 @@ class BaseColumnDefinition(
 
     _f_handle_error = None
 
-    def _handle_error_default(self, row: TModel, ex: Exception) -> ColumnValue:
+    def _handle_error_default(self, row: TModel, ex: Exception, context: CellContext) -> ColumnValue:
         raise
 
     @property
@@ -60,7 +79,7 @@ class BaseColumnDefinition(
             return self._f_handle_error
 
     def _handle_error(self, row: TModel, ex: Exception) -> ColumnValue:
-        return self._handle_error_method(row, ex)
+        return self._call_method_variable_signature(self._handle_error_method, row, ex)
 
     def error_handler(self, f_handle_error):
         self._f_handle_error = f_handle_error
@@ -83,15 +102,15 @@ class BaseColumnDefinition(
         else:
             return self._get_nocache(row)
 
-    def from_python(self, row: TModel, value: ColumnValue) -> CellValue:
+    def from_python(self, value: ColumnValue, context: CellContext) -> CellValue:
         return value
 
     def set_raw(self, row: TModel, raw: CellValue) -> None:
         self.get_column(row.table).set_raw(row.row_num, raw)
 
     def _set_default(self, row: TModel, value: ColumnValue) -> None:
-        raw = self.from_python(row, value)
-        self.set_raw(row, raw)
+        context = self.get_cell_context(row)
+        context.raw = self.from_python(value, context)
 
     def _set(self, row: TModel, value: ColumnValue) -> None:
         self._validate(row, value)
@@ -111,10 +130,10 @@ class BaseColumnDefinition(
             if self.attr in row.values_cache:
                 del row.values_cache[self.attr]
 
-    @property
+    @cached_property
     def cell_accessor(self) -> property:
         return property(self.cell)
 
-    @property
+    @cached_property
     def raw_value_accessor(self) -> property:
         return property(self.get_raw, self.set_raw, self.delete_raw)

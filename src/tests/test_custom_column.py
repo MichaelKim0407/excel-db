@@ -32,7 +32,7 @@ class User(ExcelModel):
         self.raw_name = ''
 
     @name.error_handler  # noqa: pycharm
-    def name(self, ex: Exception):
+    def name(self, ex: Exception, context):
         return [str(self.raw_name)]
 
 
