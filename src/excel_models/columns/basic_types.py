@@ -1,5 +1,4 @@
 import typing
-from datetime import datetime
 
 from excel_models.typing import CellValue, ColumnValue, CellContext
 from ._std import Column
@@ -35,7 +34,13 @@ class BaseSimpleTypeColumn(BaseTypedColumn):
 
 
 class StringColumn(BaseSimpleTypeColumn):
-    _convert = str
+    strip: bool = False
+
+    def _convert(self, value) -> str:
+        value = str(value)
+        if self.strip:
+            value = value.strip()
+        return value
 
 
 class IntColumn(BaseSimpleTypeColumn):
@@ -66,29 +71,4 @@ class BooleanColumn(BaseSimpleTypeColumn):
             return value
         if isinstance(value, str):
             return value.lower() in self.truthy
-        raise ValueError(value)
-
-
-class DateTimeColumn(BaseSimpleTypeColumn):
-    format: str | typing.Sequence[str]  # must be set in kwargs, unless you are certain there are no strings
-
-    def _strptime(self, value):
-        if isinstance(self.format, str):
-            return datetime.strptime(value, self.format)
-
-        for fmt in self.format:
-            try:
-                return datetime.strptime(value, fmt)
-            except ValueError:
-                pass
-
-        raise ValueError(f"Cannot parse '{value}' with any of the given time formats.")
-
-    def _convert(self, value) -> datetime:
-        if isinstance(value, datetime):
-            return value
-
-        if isinstance(value, str) and hasattr(self, 'format'):
-            return self._strptime(value)
-
         raise ValueError(value)
