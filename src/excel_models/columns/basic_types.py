@@ -35,7 +35,13 @@ class BaseSimpleTypeColumn(BaseTypedColumn):
 
 
 class StringColumn(BaseSimpleTypeColumn):
-    _convert = str
+    strip: bool = False
+
+    def _convert(self, value) -> str:
+        value = str(value)
+        if self.strip:
+            value = value.strip()
+        return value
 
 
 class IntColumn(BaseSimpleTypeColumn):
